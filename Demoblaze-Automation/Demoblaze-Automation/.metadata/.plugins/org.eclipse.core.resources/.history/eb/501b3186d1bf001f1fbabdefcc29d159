@@ -1,0 +1,221 @@
+package stepsDefinitions;
+
+import java.time.Duration;
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+
+public class HomePageSteps {
+
+    WebDriver driver;
+
+    @Before
+    public void setup() {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver.manage().window().maximize();
+    }
+    @After
+    public void teardown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+    
+    @Given("I am on the homepage")
+    public void i_am_on_the_homepage() {
+        driver.get("https://www.demoblaze.com/");
+    }
+
+    @When("I click on the Home link")
+    public void i_click_on_the_home_link() {
+        driver.findElement(By.xpath("//li[@class='nav-item active']//a[@class='nav-link']")).click();
+    }
+
+    @Then("I should be redirected to the homepage")
+    public void i_should_be_redirected_to_the_homepage() {
+        driver.findElement(By.xpath("(//a[normalize-space()='Phones'])[1]")).isDisplayed();
+    }
+
+    @When("I click on the Contact link")
+    public void i_click_on_the_contact_link() {
+        driver.findElement(By.xpath("//a[normalize-space()='Contact']")).click();
+    }
+
+    @Then("the Contact form should be displayed")
+    public void the_contact_form_should_be_displayed() {
+        driver.findElement(By.xpath("//div[@id='exampleModal']//div[@class='modal-body']")).isDisplayed();
+    }
+
+    @When("I click on the About link")
+    public void i_click_on_the_about_link() {
+        driver.findElement(By.xpath("//a[normalize-space()='About us']")).click();
+    }
+
+    @Then("the Video Pop-up should be displayed")
+    public void the_video_pop_up_should_be_displayed() {
+        driver.findElement(By.xpath("//div[@class='vjs-poster']")).isDisplayed();
+    }
+
+    @When("I click on the Cart link")
+    public void i_click_on_the_cart_link() {
+        driver.findElement(By.xpath("//a[@id='cartur']")).click();
+    }
+
+    @Then("I should be redirected to the cart page")
+    public void i_should_be_redirected_to_the_cart_page() {
+        String currentUrl = driver.getCurrentUrl();
+        Assert.assertTrue(currentUrl.contains("cart"), "Not redirected to the cart page");
+    }
+
+    @When("I click on the Login link")
+    public void i_click_on_the_login_link() {
+        driver.findElement(By.xpath("//a[@id='login2']")).click();
+    }
+
+    @Then("the Login form should be displayed")
+    public void the_login_form_should_be_displayed() {
+    	driver.findElement(By.xpath("//div[@id='logInModal']//div[@class='modal-body']")).isDisplayed();
+    }
+
+    @When("I click on the Sign Up link")
+    public void i_click_on_the_sign_up_link() {
+        driver.findElement(By.xpath("//a[@id='signin2']")).click();
+    }
+
+    @Then("the Sign Up form should be displayed")
+    public void the_sign_up_form_should_be_displayed() {
+    	driver.findElement(By.xpath("//div[@id='signInModal']//div[@class='modal-body']")).isDisplayed();
+    }
+
+    @When("I click on the Phones category")
+    public void i_click_on_the_phones_category() {
+        driver.findElement(By.xpath("(//a[normalize-space()='Phones'])[1]")).click();
+    }
+
+    @Then("I should be redirected to the Phones category page")
+    public void i_should_be_redirected_to_the_phones_category_page() {
+    	driver.findElement(By.xpath("//a[normalize-space()='Samsung galaxy s6']")).click();
+    	WebElement productname = driver.findElement(By.tagName("h2"));
+    	WebElement productDescription = driver.findElement(By.cssSelector("div[id='more-information'] p"));
+    	Assert.assertTrue(productname.isDisplayed(), "Product Name not displayed");
+    	Assert.assertTrue(productDescription.isDisplayed(), "Product Description not displayed");
+    }
+
+    @When("I click on the Laptop category")
+    public void i_click_on_the_laptop_category() {
+        driver.findElement(By.xpath("(//a[normalize-space()='Laptops'])[1]")).click();
+    }
+
+    @Then("I should be redirected to the Laptop category page")
+    public void i_should_be_redirected_to_the_laptop_category_page() {
+    	driver.findElement(By.xpath("//a[normalize-space()='Sony vaio i5']")).click();
+    	WebElement productname = driver.findElement(By.tagName("h2"));
+    	WebElement productDescription = driver.findElement(By.cssSelector("div[id='more-information'] p"));
+    	Assert.assertTrue(productname.isDisplayed(), "Product Name not displayed");
+    	Assert.assertTrue(productDescription.isDisplayed(), "Product Description not displayed");
+    }
+
+    @When("I click on the Desktop category")
+    public void i_click_on_the_desktop_category() {
+        driver.findElement(By.xpath("(//a[normalize-space()='Monitors'])[1]")).click();
+    }
+
+    @Then("I should be redirected to the Desktop category page")
+    public void i_should_be_redirected_to_the_desktop_category_page() {
+    	driver.findElement(By.xpath("//a[normalize-space()='Apple monitor 24']")).click();
+    	WebElement productname = driver.findElement(By.tagName("h2"));
+    	WebElement productDescription = driver.findElement(By.cssSelector("div[id='more-information'] p"));
+    	Assert.assertTrue(productname.isDisplayed(), "Product Name not displayed");
+    	Assert.assertTrue(productDescription.isDisplayed(), "Product Description not displayed");
+    }
+
+    @When("I click on any product")
+    public void i_click_on_any_product() {
+        driver.findElement(By.xpath("//a[normalize-space()='Nokia lumia 1520']")).click();
+    }
+
+    @Then("I should be able to view the product details")
+    public void i_should_be_able_to_view_the_product_details() {
+    	WebElement productname = driver.findElement(By.tagName("h2"));
+    	WebElement productDescription = driver.findElement(By.cssSelector("div[id='more-information'] p"));
+    	Assert.assertTrue(productname.isDisplayed(), "Product Name not displayed");
+    	Assert.assertTrue(productDescription.isDisplayed(), "Product Description not displayed");
+    }
+
+//    @When("I click on all products")
+//    public void i_click_on_all_products() {
+//    	List<WebElement> products = driver.findElements(By.cssSelector("#tbodyid .card a"));
+//        for (WebElement product : products) {
+//            product.click();
+//            WebElement productDetails = driver.findElement(By.tagName("h2"));
+//            Assert.assertTrue(productDetails.isDisplayed(), "Product details not displayed for one product");
+//            driver.navigate().back();
+//        }
+//    }
+    @When("I click on all products")
+    public void i_click_on_all_products() {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            boolean hasMorePages = true;
+            int pageCount = 1;
+
+            while (hasMorePages) {
+                System.out.println("Processing page " + pageCount);
+
+                // Get all products on the current page
+                List<WebElement> products = driver.findElements(By.cssSelector("#tbodyid .card a"));
+                System.out.println("Found " + products.size() + " products on page " + pageCount);
+
+                // Click each product on the current page
+                for (int i = 0; i < products.size(); i++) {
+                    List<WebElement> currentProducts = driver.findElements(By.cssSelector("#tbodyid .card a")); // Refresh list
+                    WebElement product = currentProducts.get(i);
+                    String productName = product.getText();
+                    System.out.println("Clicking product: " + productName);
+
+                    // Click the product
+                    product.click();
+
+                    // Wait for the product details page to load and validate
+                    WebElement productDetails = wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("h2")));
+                    Assert.assertTrue(productDetails.isDisplayed(), 
+                        "Product details not displayed for product: " + productName);
+
+                    // Navigate back to the product list
+                    driver.navigate().back();
+
+                    // Wait for the product list to stabilize
+                    wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("#tbodyid .card a")));
+                }
+
+                // Check if there's a next button
+                List<WebElement> nextButtonList = driver.findElements(By.id("nextButtonId")); // Update with actual selector
+                if (!nextButtonList.isEmpty() && nextButtonList.get(0).isDisplayed()) {
+                    nextButtonList.get(0).click();
+                    // Wait for the next page to load
+                    wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("#tbodyid .card a")));
+                    pageCount++;
+                } else {
+                    hasMorePages = false;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Test failed: " + e.getMessage());
+            throw e;
+        }
+        System.out.println("All products processed successfully.");
+    }
+
+}

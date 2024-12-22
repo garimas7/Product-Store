@@ -1,0 +1,81 @@
+import org.openqa.selenium.By;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class ResponsiveDesignTest {
+
+    private ResponsiveDesign responsiveDesign;
+    private WebDriver driver;
+
+    @BeforeClass
+    public void setUp() {
+        // Configure ChromeDriver for mobile emulation
+        Map<String, String> mobileEmulation = new HashMap<>();
+        mobileEmulation.put("deviceName", "iPhone X"); // You can change the device here
+
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless"); // Optional: Run tests in headless mode
+        options.setExperimentalOption("mobileEmulation", mobileEmulation);
+
+        driver = new ChromeDriver(options);
+        responsiveDesign = new ResponsiveDesign(driver);
+        responsiveDesign.openWebsite("https://www.demoblaze.com/");
+    }
+
+    @Test
+    public void testLayoutOnMobile() {
+        // Example: Check if the logo is visible
+        Assert.assertTrue(responsiveDesign.isElementVisible(By.id("nava")));
+    }
+
+    @Test
+    public void testNavigationOnMobile() {
+        // Example: Click on the "Phones" category
+        responsiveDesign.clickElement(By.linkText("Phones"));
+        Assert.assertTrue(driver.getCurrentUrl().contains("category/Phones"));
+    }
+
+    @Test
+    public void testInteractiveElements() {
+        // Example: Add an item to the cart and verify success message
+        responsiveDesign.clickElement(By.linkText("Samsung galaxy s6"));
+        responsiveDesign.clickElement(By.linkText("Add to cart"));
+        Assert.assertTrue(responsiveDesign.isElementVisible(By.xpath("//div[contains(text(),'Product added')]")));
+    }
+
+    @Test
+    public void testContentOverflow() {
+        // Example: Check if product descriptions are within the viewport
+        responsiveDesign.clickElement(By.linkText("Phones"));
+        Assert.assertTrue(responsiveDesign.isContentWithinViewport(By.className("card-title")));
+    }
+
+    @Test
+    public void testClickableElements() {
+        // Example: Check if "Add to cart" buttons are clickable
+        responsiveDesign.clickElement(By.linkText("Phones"));
+        Assert.assertTrue(responsiveDesign.isElementClickable(By.linkText("Add to cart")));
+    }
+
+    @Test
+    public void testJavaScriptFunctionality() {
+        // Example: Test contact form submission (replace with actual form elements)
+        responsiveDesign.clickElement(By.linkText("Contact"));
+        responsiveDesign.executeScript("document.getElementById('recipient-email').value='test@example.com';");
+        responsiveDesign.executeScript("document.getElementById('message-text').value='Test message';");
+        responsiveDesign.clickElement(By.xpath("//button[text()='Send message']"));
+        Assert.assertTrue(responsiveDesign.isElementVisible(By.xpath("//div[contains(text(),'Thanks for the message!!')]")));
+    }
+
+    @AfterClass
+    public void tearDown() {
+        driver.quit();
+    }
+}

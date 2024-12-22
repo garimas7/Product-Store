@@ -1,0 +1,47 @@
+Feature: Shopping Cart Page
+
+  Scenario: Validate Cart Page Loads Successfully
+    Given I navigate to the cart page
+    Then the cart page should load successfully
+
+  Scenario: Validate Title and URL of Cart Page
+    Given I navigate to the cart page
+    Then the page title should be "STORE"
+    And the page URL should be "https://www.demoblaze.com/cart.html"
+
+  Scenario: User Logs in and Sees Username in Navigation Bar
+    Given I am on the login page
+    And I enter valid username "testuser25177" and password "1234"
+    When I click on login button
+    Then I should see my username in the navigation bar
+
+  Scenario: Remove Product from Cart
+    Given I am logged in with valid credentials
+    And I have added a product to the cart
+    When I remove the product from the cart
+    Then the cart should be empty
+
+  Scenario: Login with Missing Required Fields
+    Given I am on the login page
+    When I submit the form with empty username and password
+    Then I should see an alert with the message "Please fill out Username and Password."
+    And I should not see the welcome message
+
+  Scenario: Add and Remove Single Item in Cart
+    Given I am logged in with valid credentials
+    When I add a product to the cart
+    And I remove the product from the cart
+    Then the cart should be empty
+
+  Scenario: Place Order After Adding a Single Item
+    Given I am logged in with valid credentials
+    And I add a product to the cart
+    When I place an order
+    Then I should see the confirmation message with my card number
+
+  Scenario: Add and Remove Single Item Twice
+    Given I am logged in with valid credentials
+    When I add a product to the cart
+    And I remove the product from the cart
+    And I add the product to the cart again
+    Then the cart should contain one product

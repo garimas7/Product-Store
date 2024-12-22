@@ -1,0 +1,91 @@
+package pages;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+
+import java.util.List;
+
+public class ResponsiveDesign {
+    public WebDriver driver;
+
+    // Method to initialize WebDriver with mobile emulation
+    public void initializeDriver(String userAgent) {
+        ChromeOptions options = new ChromeOptions();
+        if (userAgent != null) {
+            options.addArguments("--user-agent=" + userAgent);
+        }
+        options.addArguments("--start-maximized");
+        driver = new ChromeDriver(options);
+        driver.manage().window().maximize();
+    }
+
+    // Method to open a URL
+    public void openURL(String url) {
+        driver.get(url);
+    }
+
+    // Method to close the driver
+    public void closeDriver() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+
+    // Method to verify if the menu is accessible on mobile
+    public boolean isMenuAccessible() {
+        try {
+            WebElement menuButton = driver.findElement(By.xpath("//ul[@class='navbar-nav ml-auto']"));
+            menuButton.click();
+            WebElement menu = driver.findElement(By.xpath("//ul[@class='navbar-nav ml-auto']"));
+            return menu.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // Method to verify interactive elements are functional
+    public boolean areInteractiveElementsFunctional() {
+        try {
+            List<WebElement> anchors = driver.findElements(By.tagName("a"));
+            for (WebElement anchor : anchors) {
+                if (!anchor.isEnabled()) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // Method to verify no content overflows mobile screen
+    public boolean isContentWithinScreenWidth() {
+        try {
+            List<WebElement> elements = driver.findElements(By.xpath("//body"));
+            for (WebElement element : elements) {
+                int elementWidth = element.getSize().getWidth();
+                int screenWidth = driver.manage().window().getSize().getWidth();
+                if (elementWidth > screenWidth) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    // Method to test JavaScript functionality
+    public boolean isJavaScriptWorking() {
+        try {
+            // Assuming a dynamic element appears after an event
+            WebElement categoryButton = driver.findElement(By.xpath("//a[text()='Contact']"));
+            categoryButton.click();
+            WebElement modal = driver.findElement(By.id("exampleModal"));
+            return modal.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+}

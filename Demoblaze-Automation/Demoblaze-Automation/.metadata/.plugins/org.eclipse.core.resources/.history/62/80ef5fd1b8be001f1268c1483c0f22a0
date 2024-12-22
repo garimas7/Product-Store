@@ -1,0 +1,71 @@
+package tests;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import pages.HomePage;
+import java.time.Duration;
+
+public class HomePageTest {
+    WebDriver driver;
+    HomePage homePage;
+
+    @BeforeMethod
+    public void setUp() {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+        // DemoBlaze URL
+        driver.get("https://www.demoblaze.com/");
+
+        // HomePage object
+        homePage = new HomePage(driver);
+    }
+
+    @Test(priority = 1)
+    public void testHomeLink() {
+        homePage.clickHome();
+        Assert.assertEquals(driver.getCurrentUrl(), "https://www.demoblaze.com/index.html", "Home link failed");
+    }
+
+    @Test(priority = 2)
+    public void testContactLink() {
+        homePage.clickContact();
+        Assert.assertTrue(homePage.isContactFormDisplayed(), "Contact form did not appear");
+    }
+
+    @Test(priority = 3)
+    public void testAboutLink() {
+        homePage.clickAbout();
+        Assert.assertTrue(homePage.isVideoPopUpDisplayed(), "Video pop-up did not appear");
+    }
+
+    @Test(priority = 4)
+    public void testCartLink() {
+        homePage.clickCart();
+        Assert.assertTrue(driver.getCurrentUrl().contains("cart"), "Cart page did not open");
+    }
+
+    @Test(priority = 5)
+    public void testLoginLink() {
+        homePage.clickLogin();
+
+        // Wait and check if the login form pop-up is displayed
+        Assert.assertTrue(homePage.isLoginFormDisplayed(), "Login form did not appear");
+    }
+
+    @Test(priority = 6)
+    public void testSignUpLink() {
+        homePage.clickSignUp();
+        Assert.assertTrue(homePage.isSignUpFormDisplayed(), "Sign-up form did not appear");
+    }
+  
+    @AfterMethod
+    public void tearDown() {
+        driver.quit();
+    }
+}

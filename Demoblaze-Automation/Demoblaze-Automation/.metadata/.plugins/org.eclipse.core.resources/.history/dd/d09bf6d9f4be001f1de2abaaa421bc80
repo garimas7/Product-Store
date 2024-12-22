@@ -1,0 +1,135 @@
+package tests;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import pages.AboutPage;
+import pages.ContactPage;
+
+import java.time.Duration;
+
+public class AboutPageTest {
+
+    WebDriver driver;
+    AboutPage aboutPage;
+    WebDriverWait wait;
+
+    @BeforeMethod
+    public void setUp() {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver.get("https://www.demoblaze.com/");
+        aboutPage = new AboutPage(driver);
+    }
+
+    @AfterMethod
+    void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+
+    // -------------------- Valid Cases --------------------
+
+    @Test
+    void testAboutUsVideoPlaysOnClick() {
+        // Arrange (in setUp)
+        aboutPage.clickAboutUs();
+        Assert.assertTrue(aboutPage.isModalDisplayed(), "About us modal should be displayed.");
+
+        // Act
+        aboutPage.clickInsideVideo();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(aboutPage.pausePlayButton));
+
+        // Assert
+        Assert.assertTrue(driver.findElement(aboutPage.pausePlayButton).isDisplayed(), "Pause/Play button should be visible, indicating video playback started.");
+        aboutPage.clickCloseButton();
+    }
+
+    @Test
+    void testAboutUsVideoPauseAndPlayButtonFunctionality() {
+        // Arrange (in setUp)
+        aboutPage.clickAboutUs();
+        Assert.assertTrue(aboutPage.isModalDisplayed(), "About us modal should be displayed.");
+        aboutPage.clickInsideVideo();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(aboutPage.pausePlayButton));
+
+        // Act & Assert - Pause
+        WebElement pauseButton = driver.findElement(aboutPage.pausePlayButton);
+        Assert.assertTrue(pauseButton.isDisplayed(), "Pause/Play button should be visible.");
+        String initialAriaLabel = pauseButton.getAttribute("aria-label"); // Assuming aria-label changes between play/pause
+        pauseButton.click();
+        wait.until(ExpectedConditions.not(ExpectedConditions.textToBePresentInElementAttribute(aboutPage.pausePlayButton, "aria-label", initialAriaLabel)));
+        String afterPauseAriaLabel = pauseButton.getAttribute("aria-label");
+        Assert.assertNotEquals(initialAriaLabel, afterPauseAriaLabel, "Aria-label should change after pausing.");
+
+        // Act & Assert - Play
+        pauseButton.click();
+        wait.until(ExpectedConditions.textToBePresentInElementAttribute(aboutPage.pausePlayButton, "aria-label", initialAriaLabel));
+        String afterPlayAriaLabel = pauseButton.getAttribute("aria-label");
+        Assert.assertEquals(initialAriaLabel, afterPlayAriaLabel, "Aria-label should revert to the initial state after playing.");
+
+        aboutPage.clickCloseButton();
+    }
+
+    @Test
+    void testAboutUsVideoVolumeButtonIsPresent() {
+        // Arrange (in setUp)
+        aboutPage.clickAboutUs();
+        Assert.assertTrue(aboutPage.isModalDisplayed(), "About us modal should be displayed.");
+        aboutPage.clickInsideVideo();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(aboutPage.volumeButton));
+
+        // Act & Assert
+        Assert.assertTrue(driver.findElement(aboutPage.volumeButton).isDisplayed(), "Volume button should be present.");
+        aboutPage.clickCloseButton();
+    }
+
+    @Test
+    void testAboutUsVideoSeekBarIsPresent() {
+        // Arrange (in setUp)
+        aboutPage.clickAboutUs();
+        Assert.assertTrue(aboutPage.isModalDisplayed(), "About us modal should be displayed.");
+        aboutPage.clickInsideVideo();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(aboutPage.seekBar));
+
+        // Act & Assert
+        Assert.assertTrue(driver.findElement(aboutPage.seekBar).isDisplayed(), "Seek bar should be present.");
+        aboutPage.clickCloseButton();
+    }
+
+    @Test
+    void testAboutUsModalHasTwoCloseButtons() {
+        // Arrange (in setUp)
+        aboutPage.clickAboutUs();
+        Assert.assertTrue(aboutPage.isModalDisplayed(), "About us modal should be displayed.");
+
+        // Act & Assert
+        Assert.assertTrue(driver.findElements(aboutPage.closeButtons).size() == 2, "There should be two close buttons in the modal.");
+        aboutPage.clickCloseButton(); // Using one of the close buttons to close
+    }
+
+    @Test
+    void testAboutUsModalCanBeClosedByXButton() {
+        // Arrange (in setUp)
+        aboutPage.clickAboutUs();
+        Assert.assertTrue(aboutPage.isModalDisplayed(), "About us modal should be displayed.");
+
+        // Act
+        driver.findElement(aboutPage.closeXButton).click();
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("videoModalLabel")));
+
+        // Assert
+        Assert.assertFalse(aboutPage.isModalDisplayed(), "About us modal should not be displayed after clicking the 'X' button.");
+    }

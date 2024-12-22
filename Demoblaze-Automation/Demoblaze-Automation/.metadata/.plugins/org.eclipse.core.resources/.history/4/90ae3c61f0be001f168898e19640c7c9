@@ -1,0 +1,54 @@
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+public class AboutPage {
+    WebDriver driver;
+
+    // Locators for "About us" elements
+    By aboutUsLink = By.xpath("//a[normalize-space()='About us']"); // Link to open the "About us" modal
+    By aboutUsModal = By.id("videoModal"); // Modal popup for "About us"
+    By closeModalButton = By.xpath("//button[@class='close']"); // Close button in the modal
+    By playVideoButton = By.xpath("//button[text()='Play Video']"); // Play button for the video
+    By videoIframe = By.xpath("//iframe[contains(@src, 'https://www.youtube.com/embed')]"); // YouTube video iframe
+
+    // Constructor to initialize the WebDriver
+    public AboutPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    // Actions for the page
+
+    // Click the "About us" link
+    public void clickAboutUs() {
+        driver.findElement(aboutUsLink).click();
+    }
+
+    // Check if the modal is displayed
+    public boolean isAboutUsModalDisplayed() {
+        WebElement modal = driver.findElement(aboutUsModal);
+        return modal.isDisplayed();
+    }
+
+    // Close the modal
+    public void closeModal() {
+        driver.findElement(closeModalButton).click();
+    }
+
+    // Play the video in the modal
+    public void playVideo() {
+        driver.findElement(playVideoButton).click();
+    }
+
+    // Check if the video iframe is present (indicates video is playing)
+    public boolean isVideoPlaying() {
+        try {
+            WebElement iframe = driver.findElement(videoIframe);
+            return iframe.isDisplayed();
+        } catch (Exception e) {
+            return false; // Return false if the iframe is not found
+        }
+    }
+}

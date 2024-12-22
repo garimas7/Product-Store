@@ -1,0 +1,201 @@
+package tests;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import pages.AboutPage;
+
+import java.time.Duration;
+
+public class AboutPageTest {
+
+    WebDriver driver;
+    AboutPage aboutPage;
+    private final String BASE_URL = "https://www.demoblaze.com/";
+
+    // Choose your preferred browser (e.g., "chrome", "firefox", "edge")
+    private final String BROWSER = System.getProperty("browser", "chrome");
+    private WebDriverWait wait;
+
+    @BeforeMethod
+    void setUp() {
+        switch (BROWSER.toLowerCase()) {
+            case "chrome":
+                driver = new ChromeDriver();
+                break;
+            case "firefox":
+                driver = new FirefoxDriver();
+                break;
+            case "edge":
+                driver = new EdgeDriver();
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported browser: " + BROWSER);
+        }
+        driver.manage().window().maximize();
+        driver.get(BASE_URL);
+        aboutPage = new AboutPage(driver);
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    @AfterMethod
+    void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+
+    // -------------------- Valid Cases --------------------
+
+    @Test
+    void testAboutUsModalOpensAndCloses() {
+        // Arrange (in setUp)
+
+        // Act
+        aboutPage.clickAboutUs();
+
+        // Assert
+        Assert.assertTrue(aboutPage.isModalDisplayed(), "About us modal should be displayed.");
+        Assert.assertEquals(aboutPage.getModalTitle(), "About us", "Modal title should be 'About us'.");
+        aboutPage.clickClose();
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("videoModalLabel"))); // Wait for modal to close
+        Assert.assertFalse(aboutPage.isModalDisplayed(), "About us modal should not be displayed after closing.");
+    }
+
+    @Test
+    void testAboutUsModalOpensAndVideoIsDisplayed() {
+        // Arrange (in setUp)
+
+        // Act
+        aboutPage.clickAboutUs();
+
+        // Assert
+        Assert.assertTrue(aboutPage.isModalDisplayed(), "About us modal should be displayed.");
+        Assert.assertTrue(aboutPage.isVideoDisplayed(), "Video should be displayed in the modal.");
+        aboutPage.clickClose();
+    }
+
+    // -------------------- Invalid Cases (Scenarios that might represent unexpected states) --------------------
+
+    @Test
+    void testCloseButtonFunctionalityWithoutOpeningModal() {
+        // Arrange (in setUp)
+
+        // Act - No action to open the modal
+
+        // Assert
+        Assert.assertFalse(aboutPage.isModalDisplayed(), "Modal should not be displayed initially.");
+        // Attempting to click close when modal is not open shouldn't cause errors
+        // (This test primarily checks for robustness).
+        try {
+            // We can't directly test clicking a non-existent element,
+            // but we can ensure no exceptions are thrown if the close button logic
+            // handles a closed modal gracefully.
+            // For demonstration, let's assume the close button's logic might have side effects
+            // even if the modal isn't visible.  This is a hypothetical scenario.
+            // In a real scenario, we might check for console errors or other indicators.
+        } catch (Exception e) {
+            Assert.fail("Clicking close when modal is not open caused an error: " + e.getMessage());
+        }
+    }
+
+    @Test
+    void testModalTitleIsNotEmpty() {
+        // Arrange (in setUp)
+
+        // Act
+        aboutPage.clickAboutUs();
+
+        // Assert
+        Assert.assertTrue(aboutPage.isModalDisplayed(), "About us modal should be displayed.");
+        Assert.assertFalse(aboutPage.getModalTitle().trim().isEmpty(), "Modal title should not be empty.");
+        aboutPage.clickClose();
+    }
+
+    // -------------------- Edge Cases (Focusing on boundary conditions and transitions) --------------------
+
+    @Test
+    void testMultipleOpenAndCloseActions() {
+        // Arrange (in setUp)
+
+        // Act & Assert
+        for (int i = 0; i < 3; i++) {
+            aboutPage.clickAboutUs();
+            Assert.assertTrue(aboutPage.isModalDisplayed(), "Modal should be displayed after opening (iteration " + (i + 1) + ").");
+            aboutPage.clickClose();
+            wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("videoModalLabel")));
+            Assert.assertFalse(aboutPage.isModalDisplayed(), "Modal should not be displayed after closing (iteration " + (i + 1) + ").");
+        }
+    }
+
+    @Test
+    void testRapidClickingAboutUsButton() {
+        // Arrange (in setUp)
+
+        // Act
+        for (int i = 0; i < 5; i++) {
+            aboutPage.clickAboutUs();
+        }
+
+        // Assert
+        Assert.assertTrue(aboutPage.isModalDisplayed(), "Modal should be displayed after multiple rapid clicks.");
+        aboutPage.clickClose();
+    }
+
+    @Test
+    void testRapidClickingCloseButtonAfterOpening() {
+        // Arrange (in setUp)
+        aboutPage.clickAboutUs();
+        Assert.assertTrue(aboutPage.isModalDisplayed(), "Modal should be displayed.");
+
+        // Act
+        for (int i = 0; i < 5; i++) {
+            aboutPage.clickClose();
+        }
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("videoModalLabel")));
+
+        // Assert
+        Assert.assertFalse(aboutPage.isModalDisplayed(), "Modal should not be displayed after multiple rapid clicks on close.");
+    }
+
+
+    // -------------------- Boundary Cases (Transitions between states) --------------------
+
+    @Test
+    void testModalStateAfterNavigationAwayAndBack() {
+        // Arrange (in setUp)
+        aboutPage.clickAboutUs();
+        Assert.assertTrue(aboutPage.isModalDisplayed(), "Modal should be displayed.");
+
+        // Act
+        driver.navigate().to("https://www.demoblaze.com/index.html"); // Navigate away
+        driver.navigate().back(); // Navigate back
+        wait.until(ExpectedConditions.urlToBe(BASE_URL)); // Wait for the original page to load
+
+        // Assert
+        Assert.assertFalse(aboutPage.isModalDisplayed(), "Modal should not be displayed after navigation.");
+    }
+
+    @Test
+    void testAboutUsLinkIsClickable() {
+        // Arrange (in setUp)
+
+        // Act & Assert
+        try {
+            driver.findElement(By.xpath("//a[normalize-space()='About us']")).click();
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("videoModalLabel")));
+            Assert.assertTrue(aboutPage.isModalDisplayed(), "Modal should be displayed after clicking the link.");
+            aboutPage.clickClose();
+        } catch (Exception e) {
+            Assert.fail("About us link is not clickable: " + e.getMessage());
+        }
+    }
+}

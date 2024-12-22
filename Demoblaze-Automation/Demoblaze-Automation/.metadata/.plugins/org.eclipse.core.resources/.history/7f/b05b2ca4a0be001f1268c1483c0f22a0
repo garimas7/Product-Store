@@ -1,0 +1,41 @@
+package com.demoblaze.tests;
+
+import org.openqa.selenium.WebDriver;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
+
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.demoblaze.utils.BrowserFactory;
+import com.demoblaze.utils.ExtentReportManager;
+import com.demoblaze.utils.TestUtils;
+
+public class BaseTest {
+    protected WebDriver driver;
+    protected ExtentReports extent;
+    protected ExtentTest test;
+
+    @BeforeTest
+    public void setUp() {
+        extent = ExtentReportManager.getInstance();
+        driver = BrowserFactory.getDriver();
+    }
+
+    @AfterTest
+    public void tearDown() {
+        BrowserFactory.quitDriver();
+        extent.flush();
+    }
+
+    @AfterMethod
+    public void getResult(ITestResult result) {
+        if(result.getStatus() == ITestResult.FAILURE) {
+            String screenshotPath = TestUtils.captureScreenshot(driver, result.getName());
+            test.fail("Test Failed")
+                .addScreenCaptureFromPath(screenshotPath);
+        }
+        driver.manage().deleteAllCookies();
+    }
+}

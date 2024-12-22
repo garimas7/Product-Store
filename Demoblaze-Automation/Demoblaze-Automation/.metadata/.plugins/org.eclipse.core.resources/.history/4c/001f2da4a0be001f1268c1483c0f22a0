@@ -1,0 +1,39 @@
+package com.demoblaze.pages;
+
+public class CartPage {
+    private WebDriver driver;
+    
+    @FindBy(css = "#tbodyid tr")
+    private List<WebElement> cartItems;
+    
+    @FindBy(xpath = "//button[contains(text(),'Place Order')]")
+    private WebElement placeOrderButton;
+
+    public CartPage(WebDriver driver) {
+        this.driver = driver;
+        PageFactory.initElements(driver, this);
+    }
+
+    public boolean isProductInCart(String productName) {
+        return cartItems.stream()
+            .anyMatch(item -> item.getText().contains(productName));
+    }
+
+    public void removeProduct(String productName) {
+        WebElement deleteButton = cartItems.stream()
+            .filter(item -> item.getText().contains(productName))
+            .findFirst()
+            .map(item -> item.findElement(By.xpath(".//a[contains(text(),'Delete')]")))
+            .orElseThrow(() -> new NoSuchElementException("Product not found in cart: " + productName));
+        deleteButton.click();
+    }
+
+    public void clickPlaceOrder() {
+        placeOrderButton.click();
+    }
+
+    public double getTotalAmount() {
+        WebElement totalElement = driver.findElement(By.id("totalp"));
+        return Double.parseDouble(totalElement.getText());
+    }
+}

@@ -1,0 +1,119 @@
+package pages;
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+import java.util.List;
+
+public class ShoppingCartPage {
+
+    WebDriver driver;
+    WebDriverWait wait;
+
+    // Locators
+   	By cartPageTitle = By.xpath("//h2[normalize-space()='Products']");
+   	By cartTable = By.xpath("//tbody"); // Cart table body
+   	By deleteButton = By.xpath("//a[normalize-space()='Delete']");
+   	By placeOrderButton = By.xpath("//button[normalize-space()='Place Order']");
+   	By navigationBarUsername = By.xpath("//a[@id='nameofuser']");
+   	By loginLink = By.xpath("//a[@id='login2']"); // Login button in header
+   	By loginModal = By.id("logInModal"); // Login modal
+   	By loginEmailInput = By.id("loginusername");
+   	By loginPasswordInput = By.id("loginpassword");
+   	By loginSubmitButton = By.xpath("//button[text()='Log in']");
+   	By errorMessage = By.xpath("//div[contains(@class, 'alert')]");
+
+    // Constructor
+    public ShoppingCartPage(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    public boolean isCartPageLoaded() {
+        return driver.findElement(cartPageTitle).isDisplayed();
+    }
+
+    public String getPageTitle() {
+        return driver.getTitle();
+    }
+
+    public String getPageURL() {
+        return driver.getCurrentUrl();
+    }
+
+    public boolean isUsernameDisplayed() {
+        return driver.findElement(navigationBarUsername).isDisplayed();
+    }
+
+    public void deleteProductFromCart() {
+        driver.findElement(deleteButton).click();
+    }
+
+    public boolean isProductRemoved() {
+        return driver.findElements(cartTable).isEmpty();
+    }
+
+    public void clickPlaceOrder() {
+        driver.findElement(placeOrderButton).click();
+    }
+
+    public void navigateToLoginModal() {
+        driver.findElement(loginLink).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("logInModal")));
+    }
+
+    public void enterUsername(String username) {
+        driver.findElement(usernameField).sendKeys(username);
+    }
+
+    public void enterPassword(String password) {
+        driver.findElement(passwordField).sendKeys(password);
+    }
+
+    public void clickLoginButton() {
+    		
+        driver.findElement(loginButton).click();
+    }
+
+    public String getConfirmationMessage() {
+        wait.until(ExpectedConditions.alertIsPresent());
+        Alert alert = driver.switchTo().alert();
+        String alertText = alert.getText();
+        alert.accept();
+        return alertText;
+    }
+
+    public boolean isConfirmationMessagePresent() {
+        try {
+            wait.until(ExpectedConditions.alertIsPresent());
+            return true;
+        } catch (org.openqa.selenium.TimeoutException e) {
+            return false;
+        }
+    }
+
+    public boolean isWelcomeMessageVisible() {
+        try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(navigationBarUsername));
+            return driver.findElement(navigationBarUsername).isDisplayed();
+        } catch (org.openqa.selenium.TimeoutException e) {
+            return false;
+        }
+    }
+
+    public String getWelcomeMessage() {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(navigationBarUsername));
+        return driver.findElement(navigationBarUsername).getText();
+    }
+
+    public void clearCart() {
+        List<WebElement> deleteButtons = driver.findElements(deleteButton);
+        for (WebElement button : deleteButtons) {
+            button.click();
+        }
+    }
+}

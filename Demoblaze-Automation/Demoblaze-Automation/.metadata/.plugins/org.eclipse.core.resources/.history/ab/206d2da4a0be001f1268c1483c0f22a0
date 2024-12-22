@@ -1,0 +1,77 @@
+package com.demoblaze.pages;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.concurrent.TimeoutException;
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class ProductPage {
+    private WebDriver driver;
+    
+    @FindBy(css = ".list-group-item")
+    private List<WebElement> categories;
+    
+    @FindBy(css = ".card-title")
+    private List<WebElement> productTitles;
+    
+    @FindBy(css = ".card-block")
+    private List<WebElement> productCards;
+    
+    @FindBy(xpath = "//a[contains(text(),'Add to cart')]")
+    private WebElement addToCartButton;
+
+    public ProductPage(WebDriver driver) {
+        this.driver = driver;
+        PageFactory.initElements(driver, this);
+    }
+
+    public void selectCategory(String categoryName) {
+        WebElement category = categories.stream()
+            .filter(e -> e.getText().equalsIgnoreCase(categoryName))
+            .findFirst()
+            .orElseThrow();
+        category.click();
+        
+        // Wait for products to load
+        new WebDriverWait(driver, Duration.ofSeconds(10))
+            .until(ExpectedConditions.visibilityOfAllElements(productCards));
+    }
+
+    public boolean isCategorySelected(String categoryName) {
+        try {
+            Thread.sleep(1000); // Wait for products to reload
+            return productCards.size() > 0;
+        } catch (InterruptedException e) {
+            return false;
+        }
+    }
+
+    public void clickOnProduct(String productName) {
+        WebElement product = productTitles.stream()
+            .filter(e -> e.getText().equalsIgnoreCase(productName))
+            .findFirst()
+            .orElseThrow();
+        product.click();
+    }
+
+    public boolean isProductDetailDisplayed(String productName) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        return wait.until(ExpectedConditions.textToBePresentInElementLocated(
+            By.cssSelector(".name"), productName));
+    }
+
+    public void addToCart() {
+        addToCartButton.click();
+        Alert alert = new WebDriverWait(driver, Duration.ofSeconds(5))
+		    .until(ExpectedConditions.alertIsPresent());
+		alert.accept();
+    }
+}

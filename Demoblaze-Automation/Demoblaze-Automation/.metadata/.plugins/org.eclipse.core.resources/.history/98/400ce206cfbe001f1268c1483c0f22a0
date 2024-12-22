@@ -1,0 +1,60 @@
+package pages;
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+
+public class SignUpPage {
+
+    private WebDriver driver;
+    private WebDriverWait wait;
+
+    private final By signUpLink = By.xpath("//a[@id='signin2']");
+    private final By usernameField = By.xpath("//input[@id='sign-username']");
+    private final By passwordField = By.xpath("//input[@id='sign-password']");
+    private final By signUpButton = By.xpath("//button[normalize-space()='Sign up']");
+
+    public SignUpPage(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    public void navigateToSignUpModal() {
+        driver.findElement(signUpLink).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("signInModal"))); // Wait for the modal to appear
+    }
+
+    public void enterUsername(String username) {
+        driver.findElement(usernameField).sendKeys(username);
+    }
+
+    public void enterPassword(String password) {
+        driver.findElement(passwordField).sendKeys(password);
+    }
+
+    public void clickSignUpButton() {
+        driver.findElement(signUpButton).click();
+    }
+
+    public String getConfirmationMessage() {
+        wait.until(ExpectedConditions.alertIsPresent());
+        Alert alert = driver.switchTo().alert();
+        String alertText = alert.getText();
+        alert.accept(); // Or alert.dismiss() if needed
+        return alertText;
+    }
+
+    public boolean isConfirmationMessagePresent() {
+        try {
+            wait.until(ExpectedConditions.alertIsPresent());
+            return true;
+        } catch (org.openqa.selenium.TimeoutException e) {
+            return false;
+        }
+    }
+}

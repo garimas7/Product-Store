@@ -1,0 +1,73 @@
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+public class HomePage {
+    WebDriver driver;
+
+    // Constructor
+    public HomePage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+	// Locators for Navbar
+    By homeLink = By.xpath("//li[@class='nav-item active']//a[@class='nav-link']");
+    By contactLink = By.xpath("//a[normalize-space()='Contact']");
+    By aboutLink = By.xpath("//a[normalize-space()='About us']");
+    By cartLink = By.xpath("//a[@id='cartur']");
+    By loginLink = By.xpath("//a[@id='login2']");
+    By signUpLink = By.xpath("//a[@id='signin2']");
+
+
+    // Locators for category buttons
+   	By phoneCategory = By.xpath("(//a[normalize-space()='Phones'])[1]");
+   	By laptopCategory = By.xpath("(//a[normalize-space()='Laptops'])[1]");
+   	By desktopCategory = By.xpath("(//a[normalize-space()='Monitors'])[1]");
+
+    By productList = By.xpath("//div[@id='tbodyid']");
+
+    // Methods for interacting with navbar
+    public void clickHome() {
+        driver.findElement(homeLink).click();
+    }
+
+    public void clickContact() {
+        driver.findElement(contactLink).click();
+    }
+
+    public void clickAbout() {
+        driver.findElement(aboutLink).click();
+    }
+
+    public void clickCart() {
+        driver.findElement(cartLink).click();
+    }
+
+    public void clickLogin() {
+        driver.findElement(loginLink).click();
+    }
+
+    public void clickSignUp() {
+        driver.findElement(signUpLink).click();
+    }
+
+    // Methods for interacting with category buttons
+    public void clickMobileCategory() {
+        driver.findElement(phoneCategory).click();
+    }
+
+    public void clickLaptopCategory() {
+        driver.findElement(laptopCategory).click();
+    }
+
+    public void clickDesktopCategory() {
+        driver.findElement(desktopCategory).click();
+    }
+
+    // Method to verify product list is displayed
+    public boolean isProductListDisplayed() {
+        return driver.findElement(productList).isDisplayed();
+    }
+}

@@ -1,0 +1,50 @@
+Feature: Shopping Cart Functionality
+  As a user of the demoblaze store
+  I want to be able to manage my shopping cart
+  So that I can purchase products effectively
+
+  Background: 
+    Given I am on the demoblaze homepage
+
+  Scenario: User can view empty cart
+    When I click on the Cart button
+    Then I should see an empty shopping cart
+    And the cart page title should be "STORE"
+
+  Scenario: User can add and remove product from cart
+    Given I am logged in with username "testuser25177" and password "1234"
+    When I select a product from the Monitors category
+    And I add the product to cart
+    And I navigate to the cart page
+    Then I should see the product in my cart
+    When I remove the product from cart
+    Then the cart should be empty
+
+  Scenario: User can place an order
+    Given I am logged in with username "testuser25177" and password "1234"
+    And I have added a product to my cart
+    When I navigate to the cart page
+    And I click on Place Order button
+    And I fill in the following order details:
+      | Field    | Value        |
+      | Name     | Garima       |
+      | Country  | India        |
+      | City     | Delhi        |
+      | Card     | 1234567890   |
+      | Month    | 05           |
+      | Year     | 2024         |
+    And I confirm the purchase
+    Then I should see a successful purchase message
+    And I should be redirected to the homepage
+
+  Scenario Outline: Login validation
+    When I click on the login button
+    And I enter username "<username>" and password "<password>"
+    And I click login submit
+    Then I should see "<message>"
+
+    Examples:
+      | username      | password | message                               |
+      |              |          | Please fill out Username and Password |
+      | testuser25177 | 1234     | Welcome testuser25177                |
+      | invaliduser   | wrongpass| Wrong password.                      |

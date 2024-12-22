@@ -1,0 +1,59 @@
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+
+public class AboutPage {
+    private WebDriver driver;
+    private WebDriverWait wait;
+
+    public final By aboutUsLink = By.xpath("//a[normalize-space()='About us']");
+    public final By aboutUsModal = By.id("videoModal");
+    public final By videoFrame = By.xpath("//div[@id='example-video_wrapper']/iframe"); // Assuming it's an iframe
+    public final By pausePlayButton = By.cssSelector(".vjs-play-control"); // Example, adjust if needed
+    public final By volumeButton = By.cssSelector(".vjs-volume-control"); // Example, adjust if needed
+    public final By seekBar = By.cssSelector(".vjs-progress-control"); // Example, adjust if needed
+    public final By closeButtonText = By.xpath("//div[@class='modal-footer']/button[normalize-space()='Close']");
+    public final By closeXButton = By.cssSelector("#videoModal .close");
+    public final By closeButtons = By.xpath("//div[@id='videoModal']//button[text()='Close']");
+    public final By modalTitle = By.id("videoModalLabel");
+
+
+    public AboutPage(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    public void clickAboutUs() {
+        driver.findElement(aboutUsLink).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(aboutUsModal));
+    }
+
+    public boolean isModalDisplayed() {
+        try {
+            return driver.findElement(aboutUsModal).isDisplayed();
+        } catch (org.openqa.selenium.NoSuchElementException e) {
+            return false;
+        }
+    }
+
+    public void clickInsideVideo() {
+        // Find the video frame and click on it. You might need to switch to the iframe first.
+        WebElement videoElement = driver.findElement(videoFrame);
+        driver.switchTo().frame(videoElement);
+        driver.findElement(By.cssSelector(".vjs-tech")).click(); // Example: clicking the video tech element
+        driver.switchTo().defaultContent(); // Switch back from the iframe
+    }
+
+    public void clickCloseButton() {
+        driver.findElement(closeButtonText).click();
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(aboutUsModal));
+    }
+
+    public String getModalTitle() {
+        return driver.findElement(modalTitle).getText();
+    }
+}

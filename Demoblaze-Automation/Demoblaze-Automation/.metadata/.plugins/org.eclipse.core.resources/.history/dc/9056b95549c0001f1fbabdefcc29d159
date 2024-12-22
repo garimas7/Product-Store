@@ -1,0 +1,38 @@
+package stepsDefinitions;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import io.cucumber.java.en.*;
+import org.junit.Assert;
+import pages.ShoppingCartPage;
+
+public class ShoppingCartSteps {
+
+    WebDriver driver;
+    WebDriverWait wait;
+    ShoppingCartPage shoppingCartPage;
+
+    @Given("the user navigates to the shopping site")
+    public void the_user_navigates_to_the_shopping_site() {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("https://www.demoblaze.com/");
+        shoppingCartPage = new ShoppingCartPage(driver);
+    }
+
+    @When("the user clicks on the cart button")
+    public void the_user_clicks_on_the_cart_button() throws InterruptedException {
+        // Click the "Cart" button on the shopping site
+        shoppingCartPage.clickCartButton();
+    }
+
+    @Then("the cart page should load successfully")
+    public void the_cart_page_should_load_successfully() {
+        // Verify that the cart page has loaded successfully
+        Assert.assertTrue("The cart page did not load successfully.", shoppingCartPage.isCartPageLoaded());
+
+        // Close the browser after the test
+        driver.quit();
+    }
+}

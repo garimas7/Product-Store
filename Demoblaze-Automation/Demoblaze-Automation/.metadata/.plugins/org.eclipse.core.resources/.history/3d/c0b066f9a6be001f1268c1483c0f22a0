@@ -1,0 +1,81 @@
+package tests;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import pages.HomePage;
+
+import java.time.Duration;
+
+public class HomePageTest {
+    WebDriver driver;
+    HomePage homePage;
+
+    @BeforeMethod
+    public void setUp() {
+        // Set up WebDriver
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver"); // Update the path
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+        // Navigate to the website
+        driver.get("https://yourwebsite.com"); // Replace with your website URL
+
+        // Initialize HomePage object
+        homePage = new HomePage(driver);
+    }
+
+    @Test
+    public void testHomeLink() {
+        homePage.clickHome();
+        Assert.assertEquals(driver.getCurrentUrl(), "https://yourwebsite.com/home", "Home link failed");
+    }
+
+    @Test
+    public void testContactLink() {
+        homePage.clickContact();
+
+        // Wait and check if the contact form pop-up is displayed
+        Assert.assertTrue(homePage.isContactFormDisplayed(), "Contact form did not appear");
+    }
+
+    @Test
+    public void testAboutLink() {
+        homePage.clickAbout();
+
+        // Wait and check if the video pop-up is displayed
+        Assert.assertTrue(homePage.isVideoPopUpDisplayed(), "Video pop-up did not appear");
+    }
+
+    @Test
+    public void testCartLink() {
+        homePage.clickCart();
+        Assert.assertTrue(driver.getCurrentUrl().contains("cart"), "Cart page did not open");
+    }
+
+    @Test
+    public void testLoginLink() {
+        homePage.clickLogin();
+
+        // Wait and check if the login form pop-up is displayed
+        Assert.assertTrue(homePage.isLoginFormDisplayed(), "Login form did not appear");
+    }
+
+    @Test
+    public void testSignUpLink() {
+        homePage.clickSignUp();
+
+        // Wait and check if the sign-up form pop-up is displayed
+        Assert.assertTrue(homePage.isSignUpFormDisplayed(), "Sign-up form did not appear");
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        // Close the browser
+        driver.quit();
+    }
+}

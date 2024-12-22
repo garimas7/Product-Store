@@ -1,0 +1,135 @@
+package tests;
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoAlertPresentException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import pages.CheckoutPage;
+import pages.ShoppingCartPage;
+
+import java.time.Duration;
+import java.util.concurrent.TimeoutException;
+
+public class CheckoutPageTest {
+    WebDriver driver;
+    CheckoutPage checkoutPage;
+    ShoppingCartPage shoppingCartPage; // Assuming ShoppingCartPage contains login and addProduct functionality
+    
+    public String waitForAlertAndAccept() throws TimeoutException {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+		wait.until(ExpectedConditions.alertIsPresent()); // Wait for the alert
+		Alert alert = driver.switchTo().alert();
+		String alertMessage = alert.getText();
+		System.out.println("Alert found with message: " + alertMessage);
+		alert.accept(); // Accept the alert
+		return alertMessage;
+    }
+    private void acceptAlert() {
+        try {
+            driver.switchTo().alert().accept();
+        } catch (NoAlertPresentException e) {
+            System.out.println("No alert found to accept.");
+        }
+    }
+
+    @BeforeMethod
+    public void setup() {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver.manage().window().maximize();
+        driver.get("https://www.demoblaze.com/");
+        checkoutPage = new CheckoutPage(driver);
+        shoppingCartPage = new ShoppingCartPage(driver);
+    }
+
+    @AfterMethod
+    public void teardown() {
+        driver.quit();
+    }
+
+    // Test Case 1: A registered user logs into their account, adds items to the cart, and proceeds to checkout.
+    @Test
+    public void registeredUserCheckout() throws InterruptedException {
+        shoppingCartPage.login("testuser25177", "1234");
+        Thread.sleep(3000);
+        shoppingCartPage.addProduct();
+        checkoutPage.clickCartButton();
+        checkoutPage.clickPlaceOrder();
+        checkoutPage.fillCheckoutDetails("Garima Singh", "India", "Delhi", "1234567890", "05", "2024");
+        checkoutPage.clickPurchaseButton();
+        Assert.assertTrue(checkoutPage.isPurchaseSuccessful(), "Purchase was not successful.");
+    }
+
+	// Test Case 2: A guest user adds items to the cart and proceeds to checkout without logging in.
+    @Test
+    public void guestUserCheckout() {
+        shoppingCartPage.addProduct();
+        checkoutPage.clickCartButton();
+        checkoutPage.clickPlaceOrder();
+        checkoutPage.fillCheckoutDetails("Guest User", "Uttar Pradesh", "Varanasi", "9876543210987654", "01", "2026");
+        checkoutPage.clickPurchaseButton();
+        Assert.assertTrue(checkoutPage.isPurchaseSuccessful(), "Guest user purchase was not successful.");
+    }
+
+    // Test Case 3: A guest user attempts to proceed to checkout without entering all required details.
+    @Test
+    public void guestUserMissingDetails() throws TimeoutException {
+        shoppingCartPage.addProduct();
+        checkoutPage.clickCartButton();
+        checkoutPage.clickPlaceOrder();
+        checkoutPage.fillCheckoutDetails("", "India", "Delhi", "", "01", "2026"); // Missing name and card number
+        checkoutPage.clickPurchaseButton();
+        
+        String alertText = waitForAlertAndAccept();
+        Assert.assertEquals(alertText, "Please fill out Name and Creditcard.", "Alert text does not match expected.");
+        acceptAlert();
+        Assert.assertFalse(checkoutPage.isPurchaseSuccessful(), "Purchase should not be successful with missing details.");
+    }
+
+    // Test Case 4: A registered user attempts to proceed to checkout without entering all required details.
+    @Test
+    public void registeredUserMissingDetails() throws TimeoutException {
+        shoppingCartPage.login("testuser25177", "1234");
+        shoppingCartPage.addProduct();
+        checkoutPage.clickCartButton();
+        checkoutPage.clickPlaceOrder();
+        checkoutPage.fillCheckoutDetails("", "India", "", "", "", ""); // Missing all fields
+        checkoutPage.clickPurchaseButton();
+        
+        String alertText = waitForAlertAndAccept();
+        Assert.assertEquals(alertText, "Please fill out Name and Creditcard.", "Alert text does not match expected.");
+        acceptAlert();
+        Assert.assertFalse(checkoutPage.isPurchaseSuccessful(), "Purchase should not be successful with missing details.");
+    }
+
+    // Test Case 6: Maximum items in cart
+    @Test
+    public void maximumItemsInCart() {
+        shoppingCartPage.login("testuser", "1234");
+        for (int i = 0; i < 50; i++) { // Adding 50 items (or maximum supported by the application)
+            shoppingCartPage.addProduct();
+        }
+        checkoutPage.clickCartButton();
+        Assert.assertEquals(checkoutPage.getCartItemCount(), 50, "Cart does not contain the maximum number of items.");
+    }
+
+    // Test Case 7: Single item checkout
+    @Test
+    public void singleItemCheckout() {
+        shoppingCartPage.addProduct();
+        checkoutPage.clickCartButton();
+        Assert.assertEquals(checkoutPage.getCartItemCount(), 1, "Cart does not contain a single item.");
+        checkoutPage.clickPlaceOrder();
+        checkoutPage.fillCheckoutDetails("John Doe", "USA", "Los Angeles", "1234123412341234", "06", "2024");
+        checkoutPage.clickPurchaseButton();
+        Assert.assertTrue(checkoutPage.isPurchaseSuccessful(), "Single item purchase was not successful.");
+    }
+}

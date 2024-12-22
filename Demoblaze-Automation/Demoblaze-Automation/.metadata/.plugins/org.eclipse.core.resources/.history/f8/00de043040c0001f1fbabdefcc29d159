@@ -1,0 +1,52 @@
+Feature: Shopping Cart Functionality
+
+  Background:
+    Given the user navigates to the shopping site
+
+  Scenario: Cart page loads successfully
+    When the user clicks on the cart button
+    Then the cart page should load successfully
+
+  Scenario: Validate title and URL of cart page
+    When the user clicks on the cart button
+    Then the page title should be "STORE"
+    And the page URL should be "https://www.demoblaze.com/cart.html"
+
+  Scenario: Username is displayed in the navigation bar after login
+    Given the user logs in with username "testuser25177" and password "1234"
+    Then the username should be displayed in the navigation bar
+
+  Scenario: Remove product from cart
+    Given the user is logged in with username "testuser25177" and password "1234"
+    When the user clicks on the cart button
+    And the user deletes a product from the cart
+    Then the cart should be empty
+
+  Scenario: Login with missing required fields
+    When the user tries to log in with empty username and password
+    Then an alert should appear with message "Please fill out Username and Password"
+    And the welcome message should not be visible
+
+  Scenario: Login with empty username
+    When the user tries to log in with an empty username and password "1234"
+    Then an alert should appear with message "Please fill out Username and Password"
+    And the welcome message should not be visible
+
+  Scenario: Add and remove a single item from the cart
+    Given the user is logged in with username "testuser25177" and password "1234"
+    When the user adds a product to the cart
+    And the user removes the product from the cart
+    Then the cart should be empty
+
+  Scenario: Place order after adding a single item to the cart
+    Given the user is logged in with username "testuser25177" and password "1234"
+    When the user adds a product to the cart
+    And the user places an order
+    Then the order confirmation message should contain the card number
+
+  Scenario: Add and remove a single item twice
+    Given the user is logged in with username "testuser25177" and password "1234"
+    When the user adds a product to the cart for the first time
+    And the user removes the product from the cart
+    And the user adds the product again
+    Then the cart should have one product

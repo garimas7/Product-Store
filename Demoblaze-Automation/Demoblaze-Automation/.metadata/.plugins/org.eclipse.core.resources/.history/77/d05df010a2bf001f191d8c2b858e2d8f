@@ -1,0 +1,50 @@
+package tests;
+import org.testng.Assert;
+import org.testng.annotations.*;
+
+import pages.ResponsiveDesign;
+
+public class ResponsiveDesignTest {
+    ResponsiveDesign responsiveDesign;
+
+    @BeforeClass
+    public void setUp() {
+        responsiveDesign = new ResponsiveDesign();
+        responsiveDesign.initializeDriver("Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1");
+        responsiveDesign.openURL("https://www.demoblaze.com/");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        responsiveDesign.closeDriver();
+    }
+
+    @Test(priority = 1)
+    public void testMenuAccessibility() {
+        Assert.assertTrue(responsiveDesign.isMenuAccessible(), "Menu is not accessible on mobile devices.");
+    }
+
+    @Test(priority = 2)
+    public void testInteractiveElements() {
+        Assert.assertTrue(responsiveDesign.areInteractiveElementsFunctional(), "Some interactive elements are not functional.");
+    }
+
+
+    @Test(priority = 3)
+    public void testSmallScreenCompatibility() {
+        responsiveDesign.closeDriver();
+        responsiveDesign.initializeDriver("Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.5195.125 Mobile Safari/537.36");
+        responsiveDesign.openURL("https://www.demoblaze.com/");
+        Assert.assertTrue(responsiveDesign.isContentWithinScreenWidth(), "Website is not compatible with small screens.");
+    }
+
+    @Test(priority = 7)
+    public void testScreenOrientation() {
+        // Test in portrait mode (default)
+        Assert.assertTrue(responsiveDesign.isContentWithinScreenWidth(), "Content is getting cut off in portrait mode.");
+
+        // Switch to landscape mode
+        responsiveDesign.driver.manage().window().setSize(new org.openqa.selenium.Dimension(800, 400));
+        Assert.assertTrue(responsiveDesign.isContentWithinScreenWidth(), "Content is getting cut off in landscape mode.");
+    }
+}

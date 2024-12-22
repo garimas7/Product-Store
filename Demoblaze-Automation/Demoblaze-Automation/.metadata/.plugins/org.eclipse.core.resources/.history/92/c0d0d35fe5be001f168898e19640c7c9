@@ -1,0 +1,83 @@
+package pages;
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+
+public class ContactPage {
+
+    WebDriver driver;
+    WebDriverWait wait;
+
+    By contactLink = By.xpath("//a[normalize-space()='Contact']");
+    By emailField = By.xpath("//input[@id='recipient-email']");
+    By nameField = By.xpath("//input[@id='recipient-name']");
+    By messageField = By.xpath("//textarea[@id='message-text']");
+    By sendMessageButton = By.xpath("//button[normalize-space()='Send message']");
+
+    public ContactPage(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    public void navigateToContactModal() {
+        driver.findElement(contactLink).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("contactModal")));
+    }
+
+//    public void enterEmail(String email) {
+//        driver.findElement(emailField).sendKeys(email);
+//    }
+//
+//    public void enterContactName(String name) {
+//        driver.findElement(nameField).sendKeys(name);
+//    }
+//
+//    public void enterMessage(String message) {
+//        driver.findElement(messageField).sendKeys(message);
+//    }
+    public void enterEmail(String email) {
+        WebElement emailFieldElement = wait.until(ExpectedConditions.elementToBeClickable(emailField)); // Wait until clickable
+        emailFieldElement.clear(); // Clear any pre-existing text
+        emailFieldElement.sendKeys(email); // Enter text
+    }
+
+    public void enterContactName(String name) {
+        WebElement nameFieldElement = wait.until(ExpectedConditions.elementToBeClickable(nameField)); // Wait until clickable
+        nameFieldElement.clear(); // Clear any pre-existing text
+        nameFieldElement.sendKeys(name); // Enter text
+    }
+
+    public void enterMessage(String message) {
+        WebElement messageFieldElement = wait.until(ExpectedConditions.elementToBeClickable(messageField)); // Wait until clickable
+        messageFieldElement.clear(); // Clear any pre-existing text
+        messageFieldElement.sendKeys(message); // Enter text
+    }
+
+
+    public void clickSendMessageButton() {
+        driver.findElement(sendMessageButton).click();
+    }
+
+    public String getConfirmationMessage() {
+        wait.until(ExpectedConditions.alertIsPresent());
+        Alert alert = driver.switchTo().alert();
+        String alertText = alert.getText();
+        alert.accept(); // Or alert.dismiss() if needed
+        return alertText;
+    }
+
+    public boolean isConfirmationMessagePresent() {
+        try {
+            wait.until(ExpectedConditions.alertIsPresent());
+            return true;
+        } catch (org.openqa.selenium.TimeoutException e) {
+            return false;
+        }
+    }
+}

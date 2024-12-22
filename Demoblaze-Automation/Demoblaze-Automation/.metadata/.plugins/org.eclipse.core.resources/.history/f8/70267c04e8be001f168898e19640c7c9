@@ -1,0 +1,46 @@
+package tests;
+
+import java.time.Duration;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+import pages.ContactPage;
+
+public class ContactPageTest {
+
+    private WebDriver driver;
+    private ContactPage contactPage;
+
+    @BeforeMethod
+    public void setUp() {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver.get("https://www.demoblaze.com/");
+        contactPage = new ContactPage(driver);
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+
+    @Test(priority = 1)
+    public void testSendMessageSuccessfully(){
+    	contactPage.navigateToContactModal();
+        contactPage.enterEmail(email);
+        contactPage.enterContactName(name);
+        contactPage.enterMessage(message);
+        contactPage.clickSendMessageButton();
+        Assert.assertTrue(contactPage.isConfirmationMessagePresent(), "Confirmation message should be present after sending message.");
+        String confirmationMessage = contactPage.getConfirmationMessage();
+        Assert.assertTrue(confirmationMessage.contains("Thanks for the message!!"), "Incorrect success message.");
+    }
+}

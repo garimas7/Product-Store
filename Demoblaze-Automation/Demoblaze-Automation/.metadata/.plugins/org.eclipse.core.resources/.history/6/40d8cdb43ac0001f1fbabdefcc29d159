@@ -1,0 +1,57 @@
+Feature: Shopping Cart Functionality
+
+  Background:
+    Given I navigate to the "https://www.demoblaze.com/" website
+
+  Scenario: Verify Cart Page Loads Successfully
+    When I click on the cart button
+    Then I should see the cart page title as "Products"
+
+  Scenario: Validate Page Title and URL
+    When I click on the cart button
+    Then the page title should be "STORE"
+    And the page URL should be "https://www.demoblaze.com/cart.html"
+
+  Scenario: Verify Username Displayed in Navigation Bar After Login
+    When I login with username "testuser25177" and password "1234"
+    Then the username should be displayed in the navigation bar
+
+  Scenario: Remove Product From Cart
+    Given I am logged in as "testuser25177" with password "1234"
+    When I navigate to the cart page
+    And I remove a product from the cart
+    Then the cart should be empty
+
+  Scenario: Login With Missing Required Fields
+    When I attempt to login with username "" and password ""
+    Then an alert with message "Please fill out Username and Password." should appear
+    And the welcome message should not be visible
+
+  Scenario: Login With Empty Username
+    When I attempt to login with password "1234"
+    Then an alert with message "Please fill out Username and Password." should appear
+    And the welcome message should not be visible
+
+  Scenario: Add and Remove Single Item
+    Given I am logged in as "testuser25177" with password "1234"
+    When I add a product to the cart
+    And I remove the product from the cart
+    Then the cart should be empty
+
+  Scenario: Place Order After Adding Single Item
+    Given I am logged in as "testuser25177" with password "1234"
+    When I add a product to the cart
+    And I place an order with details:
+      | Name   | Garima        |
+      | Country| India         |
+      | City   | Delhi         |
+      | Card   | 1234567890    |
+      | Month  | 05            |
+      | Year   | 2024          |
+    Then the order confirmation message should contain "1234567890"
+
+  Scenario: Add and Remove Single Item Twice
+    Given I am logged in as "testuser25177" with password "1234"
+    When I add a product to the cart twice
+    And I remove the product from the cart twice
+    Then the cart should be empty

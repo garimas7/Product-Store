@@ -1,0 +1,7 @@
+Feature: Shopping Cart Page
+
+  Scenario: Validate Cart Page Loads Successfully
+    Given I navigate to the cart page
+    Then the cart page should load successfully
+
+  

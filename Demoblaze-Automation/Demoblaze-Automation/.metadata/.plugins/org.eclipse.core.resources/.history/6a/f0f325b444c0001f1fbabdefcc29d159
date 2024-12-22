@@ -1,0 +1,63 @@
+Feature: Shopping Cart Page functionality
+
+  @cart
+  Scenario: Verify if the cart page loads successfully
+    Given I am on the home page
+    When I navigate to the cart page
+    Then the cart page should load successfully
+
+  @cart
+  Scenario: Validate page title and URL
+    Given I am on the cart page
+    When I validate the page title and URL
+    Then the title should be "STORE"
+    And the URL should be "https://www.demoblaze.com/cart.html"
+
+  @login
+  Scenario: Validate username in the navigation bar after successful login
+    Given I navigate to the login modal
+    When I log in with valid credentials "testuser25177" and "1234"
+    Then I should see the username "testuser25177" in the navigation bar
+
+  @cart
+  Scenario: Remove product from cart
+    Given I am logged in as "testuser25177"
+    When I navigate to the cart page
+    And I remove a product from the cart
+    Then the cart should be empty
+
+  @login
+  Scenario: Attempt to log in with missing required fields
+    Given I navigate to the login modal
+    When I log in with empty credentials
+    Then an alert should be displayed saying "Please fill out Username and Password"
+    And the welcome message should not be visible
+
+  @login
+  Scenario: Attempt to log in with empty username
+    Given I navigate to the login modal
+    When I log in with empty username and valid password "1234"
+    Then an alert should be displayed saying "Please fill out Username and Password"
+    And the welcome message should not be visible
+
+  @cart
+  Scenario: Add and remove a single item from the cart
+    Given I am logged in as "testuser25177"
+    When I add a product to the cart
+    And I remove it from the cart
+    Then the cart should be empty
+
+  @order
+  Scenario: Place order after adding a single item to the cart
+    Given I am logged in as "testuser25177"
+    When I add a product to the cart
+    And I place the order
+    Then the confirmation message should include the card number "1234567890"
+
+  @cart
+  Scenario: Add and remove a single item from the cart twice
+    Given I am logged in as "testuser25177"
+    When I add a product to the cart
+    And I remove it from the cart
+    And I add it again to the cart
+    Then the cart should contain 1 product

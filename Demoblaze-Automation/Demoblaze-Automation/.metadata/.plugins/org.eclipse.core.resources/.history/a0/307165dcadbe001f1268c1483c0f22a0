@@ -1,0 +1,127 @@
+package pages;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class HomePage {
+    WebDriver driver;
+
+    // Constructor
+    public HomePage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+	// Locators for Navbar
+    By homeLink = By.xpath("//li[@class='nav-item active']//a[@class='nav-link']");
+    By contactLink = By.xpath("//a[normalize-space()='Contact']");
+    By aboutLink = By.xpath("//a[normalize-space()='About us']");
+    By cartLink = By.xpath("//a[@id='cartur']");
+    By loginLink = By.xpath("//a[@id='login2']");
+    By signUpLink = By.xpath("//a[@id='signin2']");
+
+    private By contactForm = By.xpath("(//div[@class='modal-body'])[1]");
+    private By videoPopUp = By.xpath("//div[@class='vjs-poster']");
+    private By loginForm = By.xpath("//div[@id='logInModal']//div[@class='modal-body']");
+    private By signUpForm = By.xpath("(//div[@class='modal-body'])[2]");
+    
+    private final Duration TIMEOUT = Duration.ofSeconds(10);
+
+    // Locators for category buttons
+   	By phoneCategory = By.xpath("(//a[normalize-space()='Phones'])[1]");
+   	By laptopCategory = By.xpath("(//a[normalize-space()='Laptops'])[1]");
+   	By desktopCategory = By.xpath("(//a[normalize-space()='Monitors'])[1]");
+
+    By productList = By.xpath("//div[@id='tbodyid']");
+    
+    // Locators for carousel
+    By carouselNextButton = By.xpath("//span[@class='carousel-control-prev-icon']")
+    By carouselPrevButtonBy = By.xpath("//span[@class='carousel-control-next-icon']")
+    By carouselIndicators = By.cssSelector(".carousel-indicators li"); // Adjust selector as per your HTML
+    By carouselActiveImage = By.cssSelector(".carousel-item.active img"); // Active carousel item image
+    
+
+    // Methods for interacting with navbar
+    public void clickHome() {
+        driver.findElement(homeLink).click();
+    }
+
+    public void clickContact() {
+        driver.findElement(contactLink).click();
+    }
+
+    public void clickAbout() {
+        driver.findElement(aboutLink).click();
+    }
+
+    public void clickCart() {
+        driver.findElement(cartLink).click();
+    }
+
+    public void clickLogin() {
+        driver.findElement(loginLink).click();
+    }
+
+    public void clickSignUp() {
+        driver.findElement(signUpLink).click();
+    }
+
+    // Methods for interacting with category buttons
+    public void clickMobileCategory() {
+        driver.findElement(phoneCategory).click();
+    }
+
+    public void clickLaptopCategory() {
+        driver.findElement(laptopCategory).click();
+    }
+
+    public void clickDesktopCategory() {
+        driver.findElement(desktopCategory).click();
+    }
+
+    // Method to verify product list is displayed
+    public boolean isProductListDisplayed() {
+        return driver.findElement(productList).isDisplayed();
+    }
+    
+    public boolean isContactFormDisplayed() {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+            WebElement contactFormElement = wait.until(ExpectedConditions.visibilityOfElementLocated(contactForm));
+            return contactFormElement.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    public boolean isVideoPopUpDisplayed() {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+            WebElement videoPopUpElement = wait.until(ExpectedConditions.visibilityOfElementLocated(videoPopUp));
+            return videoPopUpElement.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    public boolean isLoginFormDisplayed() {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+            WebElement loginFormElement = wait.until(ExpectedConditions.visibilityOfElementLocated(loginForm));
+            return loginFormElement.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    public boolean isSignUpFormDisplayed() {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+            WebElement signUpFormElement = wait.until(ExpectedConditions.visibilityOfElementLocated(signUpForm));
+            return signUpFormElement.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+}

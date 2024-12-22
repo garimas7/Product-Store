@@ -1,0 +1,132 @@
+package stepsDefinitions;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import pages.ShoppingCartPage;
+import io.cucumber.java.en.*;
+import org.testng.Assert;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+public class ShoppingCartSteps {
+
+    WebDriver driver;
+    ShoppingCartPage shoppingCartPage;
+
+    @Given("I navigate to the cart page")
+    public void navigateToCartPage() {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        driver.manage().window().maximize();
+        driver.get("https://www.demoblaze.com/");
+        shoppingCartPage = new ShoppingCartPage(driver);
+        shoppingCartPage.clickCartButton();
+    }
+
+    @Then("the cart page should load successfully")
+    public void cartPageShouldLoadSuccessfully() {
+        Assert.assertTrue(shoppingCartPage.isCartPageLoaded(), "Cart page did not load successfully.");
+    }
+
+    @Then("the page title should be {string}")
+    public void pageTitleShouldBe(String title) {
+        Assert.assertEquals(shoppingCartPage.getPageTitle(), title, "Page title mismatch.");
+    }
+
+    @Then("the page URL should be {string}")
+    public void pageURLShouldBe(String url) {
+        Assert.assertEquals(shoppingCartPage.getPageURL(), url, "Page URL mismatch.");
+    }
+
+    @Given("I am on the login page")
+    public void navigateToLoginPage() {
+        shoppingCartPage.navigateToLoginModal();
+    }
+
+    @Given("I enter valid username {string} and password {string}")
+    public void enterValidCredentials(String username, String password) {
+        shoppingCartPage.enterUsername(username);
+        shoppingCartPage.enterPassword(password);
+    }
+
+    @When("I click on login button")
+    public void clickLoginButton() {
+        shoppingCartPage.clickLoginButton();
+    }
+
+    @Then("I should see my username in the navigation bar")
+    public void shouldSeeUsernameInNavigationBar() {
+        Assert.assertTrue(shoppingCartPage.isUsernameDisplayed(), "Username is not displayed in the navigation bar.");
+    }
+
+    @Given("I am logged in with valid credentials")
+    public void loggedInWithValidCredentials() {
+        navigateToLoginPage();
+        enterValidCredentials("testuser25177", "1234");
+        clickLoginButton();
+    }
+
+    @Given("I have added a product to the cart")
+    public void addProductToCart() {
+        shoppingCartPage.addProduct();
+    }
+
+    @When("I remove the product from the cart")
+    public void removeProductFromCart() {
+        shoppingCartPage.deleteProductFromCart();
+    }
+
+    @Then("the cart should be empty")
+    public void cartShouldBeEmpty() {
+        WebElement tableBody = driver.findElement(By.xpath("//tbody"));
+        List<WebElement> rows = tableBody.findElements(By.tagName("tr"));
+        Assert.assertTrue(rows.isEmpty(), "The cart is not empty.");
+    }
+
+    @When("I submit the form with empty username and password")
+    public void submitFormWithEmptyCredentials() {
+        shoppingCartPage.navigateToLoginModal();
+        shoppingCartPage.enterUsername("");
+        shoppingCartPage.enterPassword("");
+        shoppingCartPage.clickLoginButton();
+    }
+
+    @Then("I should see an alert with the message {string}")
+    public void alertShouldContainMessage(String message) {
+        String alertMessage = handleAlert();
+        Assert.assertNotNull(alertMessage, "Alert should appear.");
+        Assert.assertTrue(alertMessage.contains(message), "Incorrect error message.");
+    }
+
+    @Then("I should not see the welcome message on the shopping cart page")
+    public void shouldNotSeeWelcomeMessageOnShoppingCartPage() {
+        Assert.assertFalse(shoppingCartPage.isWelcomeMessageVisible(), "Welcome message should not be visible on the shopping cart page.");
+    }
+
+    @Then("I should see the confirmation message with my card number")
+    public void shouldSeeConfirmationMessage() {
+        WebElement confirmMsg = driver.findElement(By.xpath("//p[@class='lead text-muted ']"));
+        String msg = confirmMsg.getText();
+        Assert.assertTrue(msg.contains("1234567890"), "Card number not found in confirmation message.");
+    }
+
+    @Then("the cart should contain one product")
+    public void cartShouldContainOneProduct() {
+        WebElement tableBody = driver.findElement(By.xpath("//tbody"));
+        List<WebElement> rows = tableBody.findElements(By.tagName("tr"));
+        Assert.assertEquals(rows.size(), 1, "The cart should contain exactly one product.");
+    }
+
+    private String handleAlert() {
+        Alert alert = driver.switchTo().alert();
+        String message = alert.getText();
+        alert.accept();
+        return message;
+    }
+}

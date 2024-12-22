@@ -1,0 +1,65 @@
+package tests;
+import org.testng.Assert;
+import org.testng.annotations.*;
+
+import pages.ResponsiveDesign;
+
+public class ResponsiveDesignTest {
+    ResponsiveDesign responsiveDesign;
+
+    @BeforeClass
+    public void setUp() {
+        responsiveDesign = new ResponsiveDesign();
+        responsiveDesign.initializeDriver("Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1");
+        responsiveDesign.openURL("https://www.demoblaze.com/");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        responsiveDesign.closeDriver();
+    }
+
+    @Test(priority = 1)
+    public void testMenuAccessibility() {
+        Assert.assertTrue(responsiveDesign.isMenuAccessible(), "Menu is not accessible on mobile devices.");
+    }
+
+    @Test(priority = 2)
+    public void testInteractiveElements() {
+        Assert.assertFalse(responsiveDesign.areInteractiveElementsFunctional(), "Some interactive elements are not functional.");
+    }
+
+    @Test(priority = 3)
+    public void testContentWithinScreenWidth() {
+        Assert.assertTrue(responsiveDesign.isContentWithinScreenWidth(), "Content overflows outside the screen width.");
+    }
+
+    @Test(priority = 4)
+    public void testClickableElements() {
+        Assert.assertTrue(responsiveDesign.areClickableElementsAccessible(), "Some clickable elements are not easily accessible.");
+    }
+
+    @Test(priority = 5)
+    public void testJavaScriptFunctionality() {
+        Assert.assertTrue(responsiveDesign.isJavaScriptWorking(), "JavaScript functionality is not working properly.");
+    }
+
+    @Test(priority = 6)
+    public void testSmallScreenCompatibility() {
+        responsiveDesign.closeDriver();
+        responsiveDesign.initializeDriver("Mozilla/5.0 (iPhone; CPU iPhone OS 10_0 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) Version/10.0 Mobile/14A345 Safari/602.1");
+        responsiveDesign.openURL("https://www.demoblaze.com/");
+
+        Assert.assertTrue(responsiveDesign.isContentWithinScreenWidth(), "Website is not compatible with small screens.");
+    }
+
+    @Test(priority = 7)
+    public void testScreenOrientation() {
+        // Test in portrait mode (default)
+        Assert.assertTrue(responsiveDesign.isContentWithinScreenWidth(), "Content is getting cut off in portrait mode.");
+
+        // Switch to landscape mode
+        responsiveDesign.driver.manage().window().setSize(new org.openqa.selenium.Dimension(800, 400));
+        Assert.assertTrue(responsiveDesign.isContentWithinScreenWidth(), "Content is getting cut off in landscape mode.");
+    }
+}

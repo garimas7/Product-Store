@@ -1,0 +1,129 @@
+package stepdefinitions;
+
+import io.cucumber.java.en.*;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.datatable.DataTable;
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import pages.CheckoutPage;
+import pages.ShoppingCartPage;
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+
+public class CheckoutSteps {
+    private WebDriver driver;
+    private CheckoutPage checkoutPage;
+    private ShoppingCartPage shoppingCartPage;
+
+    @Before
+    public void setup() {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver.manage().window().maximize();
+        checkoutPage = new CheckoutPage(driver);
+        shoppingCartPage = new ShoppingCartPage(driver);
+    }
+
+    @After
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+
+    @Given("I am on the demoblaze website")
+    public void i_am_on_the_demoblaze_website() {
+        driver.get("https://www.demoblaze.com/");
+    }
+
+    @Given("I am logged in as {string} with password {string}")
+    public void i_am_logged_in_as_with_password(String username, String password) throws InterruptedException {
+        shoppingCartPage.login(username, password);
+        Thread.sleep(3000);
+    }
+
+    @When("I add a product to cart")
+    public void i_add_a_product_to_cart() {
+        shoppingCartPage.addProduct();
+        waitForAlertAndAccept();
+    }
+
+    @When("I navigate to cart")
+    public void i_navigate_to_cart() {
+        checkoutPage.clickCartButton();
+    }
+
+    @When("I click on place order")
+    public void i_click_on_place_order() {
+        checkoutPage.clickPlaceOrder();
+    }
+
+    @When("I fill checkout details with following information")
+    public void i_fill_checkout_details_with_following_information(DataTable dataTable) {
+        List<Map<String, String>> data = dataTable.asMaps(String.class, String.class);
+        Map<String, String> checkoutData = data.get(0);
+        
+        checkoutPage.fillCheckoutDetails(
+            checkoutData.get("name"),
+            checkoutData.get("country"),
+            checkoutData.get("city"),
+            checkoutData.get("card"),
+            checkoutData.get("month"),
+            checkoutData.get("year")
+        );
+    }
+
+    @When("I click on purchase button")
+    public void i_click_on_purchase_button() {
+        checkoutPage.clickPurchaseButton();
+    }
+
+    @Then("I should see successful purchase message")
+    public void i_should_see_successful_purchase_message() {
+        Assert.assertTrue(checkoutPage.isPurchaseSuccessful());
+    }
+
+    @Then("I should see alert message {string}")
+    public void i_should_see_alert_message(String expectedMessage) {
+        String actualMessage = waitForAlertAndAccept();
+        Assert.assertEquals(actualMessage, expectedMessage);
+    }
+
+    @When("I add {string} products to cart")
+    public void i_add_products_to_cart(String count) throws InterruptedException {
+        int itemCount = Integer.parseInt(count);
+        for (int i = 0; i < itemCount; i++) {
+            shoppingCartPage.addProduct();
+            waitForAlertAndAccept();
+            driver.navigate().to("https://www.demoblaze.com/");
+            Thread.sleep(1000);
+        }
+    }
+
+    @Then("I should see all items in the cart")
+    public void i_should_see_all_items_in_the_cart() {
+        int itemCount = checkoutPage.getCartItemCount();
+        Assert.assertTrue(itemCount > 0);
+    }
+
+    @Then("cart should contain {string} item")
+    public void cart_should_contain_item(String expectedCount) {
+        int actualCount = checkoutPage.getCartItemCount();
+        Assert.assertEquals(actualCount, Integer.parseInt(expectedCount));
+    }
+
+    private String waitForAlertAndAccept() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+        String alertMessage = alert.getText();
+        alert.accept();
+        return alertMessage;
+    }
+}

@@ -1,0 +1,110 @@
+package stepsDefinitions;
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import io.cucumber.java.en.*;
+import org.junit.Assert;
+import pages.ShoppingCartPage;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.By;
+import java.time.Duration;
+
+public class ShoppingCartSteps {
+    
+    WebDriver driver = new ChromeDriver();
+    ShoppingCartPage shoppingCartPage = new ShoppingCartPage(driver);
+
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // Explicit wait
+
+    @Given("the user navigates to the shopping site")
+    public void the_user_navigates_to_the_shopping_site() {
+        driver.get("https://www.demoblaze.com/");
+    }
+
+    @When("the user clicks on the cart button")
+    public void the_user_clicks_on_the_cart_button() {
+        shoppingCartPage.clickCartButton();
+        wait.until(ExpectedConditions.urlContains("cart.html"));
+    }
+
+    @Then("the cart page should load successfully")
+    public void the_cart_page_should_load_successfully() {
+        Assert.assertTrue(shoppingCartPage.isCartPageLoaded());
+    }
+
+    @Then("the page title should be {string}")
+    public void the_page_title_should_be(String expectedTitle) {
+        Assert.assertEquals(expectedTitle, driver.getTitle());
+    }
+
+    @Then("the page URL should be {string}")
+    public void the_page_url_should_be(String expectedURL) {
+        Assert.assertEquals(expectedURL, driver.getCurrentUrl());
+    }
+
+    @Given("the user logs in with username {string} and password {string}")
+    public void the_user_logs_in_with_username_and_password(String username, String password) {
+        shoppingCartPage.navigateToLoginModal();
+        shoppingCartPage.enterUsername(username);
+        shoppingCartPage.enterPassword(password);
+        shoppingCartPage.clickLoginButton();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("username"))); // Assuming there's a username element after login
+    }
+
+    @Then("the username should be displayed in the navigation bar")
+    public void the_username_should_be_displayed_in_the_navigation_bar() {
+        Assert.assertTrue(shoppingCartPage.isUsernameDisplayed());
+    }
+
+    @When("the user deletes a product from the cart")
+    public void the_user_deletes_a_product_from_the_cart() {
+        shoppingCartPage.deleteProductFromCart();
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.cssSelector(".product"))); // Assuming there's a product element
+    }
+
+    @Then("the cart should be empty")
+    public void the_cart_should_be_empty() {
+        Assert.assertTrue(shoppingCartPage. );
+    }
+
+    @Then("an alert should appear with message {string}")
+    public void an_alert_should_appear_with_message(String expectedMessage) {
+        Alert alert = driver.switchTo().alert();
+        String alertMessage = alert.getText();
+        Assert.assertTrue(alertMessage.contains(expectedMessage));
+        alert.accept();
+    }
+
+    @Then("the welcome message should not be visible")
+    public void the_welcome_message_should_not_be_visible() {
+        Assert.assertFalse(shoppingCartPage.isWelcomeMessageVisible());
+    }
+
+    @When("the user adds a product to the cart")
+    public void the_user_adds_a_product_to_the_cart() {
+        shoppingCartPage.addProduct();
+    }
+
+    @When("the user places an order")
+    public void the_user_places_an_order() {
+        shoppingCartPage.clickPlaceOrder();
+    }
+
+    @Then("the order confirmation message should contain the card number")
+    public void the_order_confirmation_message_should_contain_the_card_number() {
+        String confirmationMessage = shoppingCartPage.getConfirmationMessage();
+        Assert.assertTrue(confirmationMessage.contains("1234567890"));
+    }
+
+    @When("the user adds a product to the cart for the first time")
+    public void the_user_adds_a_product_to_the_cart_for_the_first_time() {
+        shoppingCartPage.addProduct();
+    }
+
+    @Then("the cart should have one product")
+    public void the_cart_should_have_one_product() {
+        Assert.assertTrue(shoppingCartPage.isProductInCart());
+    }
+}

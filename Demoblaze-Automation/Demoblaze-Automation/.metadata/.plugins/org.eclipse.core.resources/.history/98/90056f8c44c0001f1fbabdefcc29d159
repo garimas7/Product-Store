@@ -1,0 +1,146 @@
+package steps;
+
+import java.util.List;
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.When;
+import io.cucumber.java.en.Then;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.testng.Assert;
+import pages.ShoppingCartPage;
+
+public class ShoppingCartSteps {
+
+    WebDriver driver;
+    ShoppingCartPage shoppingCartPage;
+
+    public String handleAlert() {
+        Alert alert = driver.switchTo().alert();
+        String message = alert.getText();
+        alert.accept();
+        return message;
+    }
+
+    @Given("I am on the home page")
+    public void iAmOnTheHomePage() {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("https://www.demoblaze.com/");
+        shoppingCartPage = new ShoppingCartPage(driver);
+    }
+
+    @Given("I am logged in as {string}")
+    public void iAmLoggedInAs(String username) {
+        shoppingCartPage.navigateToLoginModal();
+        shoppingCartPage.enterUsername(username);
+        shoppingCartPage.enterPassword("1234");  // Default password in your code
+        shoppingCartPage.clickLoginButton();
+    }
+
+    @When("I navigate to the cart page")
+    public void iNavigateToTheCartPage() {
+        shoppingCartPage.clickCartButton();
+    }
+
+    @Then("the cart page should load successfully")
+    public void theCartPageShouldLoadSuccessfully() {
+        Assert.assertTrue(shoppingCartPage.isCartPageLoaded(), "Cart page did not load successfully.");
+    }
+
+    @When("I validate the page title and URL")
+    public void iValidateThePageTitleAndURL() {
+        String expectedTitle = "STORE";
+        String expectedURL = "https://www.demoblaze.com/cart.html";
+        Assert.assertEquals(shoppingCartPage.getPageTitle(), expectedTitle, "Page title mismatch.");
+        Assert.assertEquals(shoppingCartPage.getPageURL(), expectedURL, "Page URL mismatch.");
+    }
+
+    @Then("the title should be {string}")
+    public void theTitleShouldBe(String expectedTitle) {
+        Assert.assertEquals(shoppingCartPage.getPageTitle(), expectedTitle, "Page title mismatch.");
+    }
+
+    @Then("the URL should be {string}")
+    public void theURLShouldBe(String expectedURL) {
+        Assert.assertEquals(shoppingCartPage.getPageURL(), expectedURL, "Page URL mismatch.");
+    }
+
+    @When("I log in with valid credentials {string} and {string}")
+    public void iLogInWithValidCredentialsAnd(String username, String password) {
+        shoppingCartPage.navigateToLoginModal();
+        shoppingCartPage.enterUsername(username);
+        shoppingCartPage.enterPassword(password);
+        shoppingCartPage.clickLoginButton();
+    }
+
+    @Then("I should see the username {string} in the navigation bar")
+    public void iShouldSeeTheUsernameInTheNavigationBar(String username) {
+        Assert.assertTrue(shoppingCartPage.isUsernameDisplayed(), "Username is not displayed in the navigation bar.");
+        Assert.assertEquals(shoppingCartPage.getWelcomeMessage(), username, "Username mismatch.");
+    }
+
+    @When("I remove a product from the cart")
+    public void iRemoveAProductFromTheCart() {
+        shoppingCartPage.deleteProductFromCart();
+    }
+
+    @Then("the cart should be empty")
+    public void theCartShouldBeEmpty() {
+        WebElement tableBody = driver.findElement(By.xpath("//tbody"));
+        List<WebElement> rows = tableBody.findElements(By.tagName("tr"));
+        Assert.assertTrue(rows.isEmpty(), "The cart is not empty.");
+    }
+
+    @Given("I navigate to the login modal")
+    public void iNavigateToTheLoginModal() {
+        shoppingCartPage.navigateToLoginModal();
+    }
+
+    @When("I log in with empty credentials")
+    public void iLogInWithEmptyCredentials() {
+        shoppingCartPage.enterUsername("");
+        shoppingCartPage.enterPassword("");
+        shoppingCartPage.clickLoginButton();
+    }
+
+    @Then("an alert should be displayed saying {string}")
+    public void anAlertShouldBeDisplayedSaying(String alertMessage) {
+        String message = handleAlert();
+        Assert.assertTrue(message.contains(alertMessage), "Incorrect error message.");
+    }
+
+    @Then("the welcome message should not be visible")
+    public void theWelcomeMessageShouldNotBeVisible() {
+        Assert.assertFalse(shoppingCartPage.isWelcomeMessageVisible(), "Welcome message should not be visible.");
+    }
+
+    @When("I add a product to the cart")
+    public void iAddAProductToTheCart() {
+        shoppingCartPage.addProduct();
+    }
+
+    @Then("the confirmation message should include the card number {string}")
+    public void theConfirmationMessageShouldIncludeTheCardNumber(String cardNumber) {
+        WebElement confirmMsg = driver.findElement(By.xpath("//p[@class='lead text-muted ']"));
+        String msg = confirmMsg.getText();
+        Assert.assertTrue(msg.contains(cardNumber), "Card number not found in confirmation message.");
+    }
+
+    @Then("the cart should contain {int} product")
+    public void theCartShouldContainProduct(int productCount) {
+        WebElement tableBody = driver.findElement(By.xpath("//tbody"));
+        List<WebElement> rows = tableBody.findElements(By.tagName("tr"));
+        Assert.assertEquals(rows.size(), productCount, "Incorrect number of products in the cart.");
+    }
+
+    @Then("I should see an alert")
+    public void iShouldSeeAnAlert() {
+        Assert.assertNotNull(handleAlert(), "Alert should be displayed.");
+    }
+}

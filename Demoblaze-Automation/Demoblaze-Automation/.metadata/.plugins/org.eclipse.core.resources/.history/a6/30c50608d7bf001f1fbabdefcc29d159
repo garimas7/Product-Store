@@ -1,0 +1,107 @@
+package stepsDefinitions;
+
+import java.time.Duration;
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+
+public class HomePageSteps {
+
+    WebDriver driver;
+
+    @Before
+    public void setup() {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver.manage().window().maximize();
+    }
+    @After
+    public void teardown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+    
+    @Given("I am on the homepage")
+    public void i_am_on_the_homepage() {
+        driver.get("https://www.demoblaze.com/");
+    }
+
+//    @When("I click on all products")
+//    public void i_click_on_all_products() throws InterruptedException {
+//    	List<WebElement> products = driver.findElements(By.cssSelector("#tbodyid .card a"));
+//        for (WebElement product : products) {
+//        	String productName = product.getText();
+//        	System.out.println("Product Name: " + productName);
+//            product.click();
+//            WebElement productDetails = driver.findElement(By.cssSelector(".name"));
+//            Assert.assertTrue(productDetails.isDisplayed(), "Product details not displayed for one product");
+//            driver.navigate().back();
+//        }
+//    }
+    @When("I click on all products")
+    public void i_click_on_all_products() throws InterruptedException {
+        boolean hasNextPage = true;
+        
+        while (hasNextPage) {
+            // Wait for products to be visible
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("#tbodyid .card a")));
+            
+            // Get all products on current page
+            List<WebElement> products = driver.findElements(By.cssSelector("#tbodyid .card a"));
+            
+            for (WebElement product : products) {
+                try {
+                    String productName = product.getText();
+                    System.out.println("Product Name: " + productName);
+                    
+                    ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", product);
+                    Thread.sleep(500);
+                    
+                    product.click();
+                    wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".name")));
+                    WebElement productDetails = driver.findElement(By.cssSelector(".name"));
+                    Assert.assertTrue(productDetails.isDisplayed(), "Product details not displayed for: " + productName);
+                    
+                    driver.navigate().back();
+                    wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("#tbodyid .card a")));
+                    
+                } catch (Exception e) {
+                    System.out.println("Error processing product: " + e.getMessage());
+                }
+            }
+            
+            // Check for next page
+            try {
+                WebElement nextButton = driver.findElement(By.id("next2"));
+                String buttonClass = nextButton.getAttribute("class");
+                
+                // Check if next button is not disabled
+                if (!buttonClass.contains("disabled")) {
+                    JavascriptExecutor js = (JavascriptExecutor) driver;
+                    js.executeScript("arguments[0].click();", nextButton);
+                    Thread.sleep(1500); // Wait for page to load
+                } else {
+                    hasNextPage = false;
+                }
+            } catch (Exception e) {
+                System.out.println("No more pages available: " + e.getMessage());
+                hasNextPage = false;
+            }
+        }
+    }
+}

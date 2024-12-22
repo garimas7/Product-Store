@@ -1,0 +1,87 @@
+package tests;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import pages.AboutPage;
+
+import java.time.Duration;
+
+public class AboutPageTest {
+
+    WebDriver driver;
+    AboutPage aboutPage;
+
+    @BeforeMethod
+    public void setup() {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver.manage().window().maximize();
+        driver.get("https://www.demoblaze.com/");
+        aboutPage = new AboutPage(driver);
+    }
+
+    @Test(priority = 1)
+    public void testAboutUsModalOpens() {
+        // Test case: Verify that the "About us" modal opens when the link is clicked.
+        aboutPage.clickAboutUs();
+        Assert.assertTrue(aboutPage.isAboutUsModalDisplayed(), "About us modal did not open.");
+    }
+
+    @Test(priority = 2)
+    public void testVideoPlaysInModal() {
+        // Test case: Verify that the video can play in the modal.
+        aboutPage.clickAboutUs();
+        aboutPage.playVideo();
+        Assert.assertTrue(aboutPage.isVideoPlaying(), "Video did not play in the modal.");
+    }
+
+    @Test(priority = 3)
+    public void testCloseModal() {
+        // Test case: Verify that the modal can be closed.
+        aboutPage.clickAboutUs();
+        Assert.assertTrue(aboutPage.isAboutUsModalDisplayed(), "About us modal did not open.");
+        aboutPage.closeModal();
+        Assert.assertFalse(isElementVisible(aboutPage.aboutUsModal), "About us modal did not close.");
+    }
+
+    @Test(priority = 4)
+    public void testBoundaryCaseModalMultipleClicks() {
+        // Test case: Verify behavior when the "About us" link is clicked multiple times.
+        aboutPage.clickAboutUs();
+        aboutPage.clickAboutUs();
+        Assert.assertTrue(aboutPage.isAboutUsModalDisplayed(), "About us modal did not maintain state after multiple clicks.");
+    }
+
+    @Test(priority = 5)
+    public void testEdgeCaseWithoutInteraction() {
+        // Test case: Verify that the modal does not appear without interaction.
+        Assert.assertFalse(isElementVisible(aboutPage.aboutUsModal), "About us modal is displayed without interaction.");
+    }
+
+    @Test(priority = 6)
+    public void testEdgeCaseInvalidVideoSource() {
+        // Test case: Verify behavior if the video source is broken or unavailable.
+        aboutPage.clickAboutUs();
+        // Simulate invalid video source (this may require mocking the iframe source or using a test environment).
+        Assert.assertFalse(aboutPage.isVideoPlaying(), "Video is playing despite having an invalid source.");
+    }
+
+    // Helper method to check if an element is visible
+    private boolean isElementVisible(By locator) {
+        try {
+            return driver.findElement(locator).isDisplayed();
+        } catch (Exception e) {
+            return false; // Return false if the element is not found
+        }
+    }
+
+    @AfterMethod
+    public void teardown() {
+        // Close the browser after each test
+        driver.quit();
+    }
+}

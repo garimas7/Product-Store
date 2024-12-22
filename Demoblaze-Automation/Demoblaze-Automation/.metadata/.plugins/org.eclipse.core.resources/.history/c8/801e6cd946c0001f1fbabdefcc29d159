@@ -1,0 +1,80 @@
+package stepsDefinitions;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import pages.ShoppingCartPage;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.en.*;
+import org.testng.Assert;
+
+import java.util.concurrent.TimeUnit;
+
+public class ShoppingCartSteps {
+
+    WebDriver driver;
+    ShoppingCartPage shoppingCartPage;
+    
+    @Before
+    public void setUp() {
+    	driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        driver.manage().window().maximize();
+        driver.get("https://www.demoblaze.com/");
+        shoppingCartPage = new ShoppingCartPage(driver);
+    }
+    
+    @After
+    public void tearDown() {
+    	driver.quit();  // Use quit instead of close for proper browser shutdown
+    }
+
+    @Given("I navigate to the cart page")
+    public void navigateToCartPage() {
+    	shoppingCartPage.navigateToLoginModal(); 
+        shoppingCartPage.clickCartButton();
+    }
+
+    @Then("the cart page should load successfully")
+    public void cartPageShouldLoadSuccessfully() {
+        Assert.assertTrue(shoppingCartPage.isCartPageLoaded(), "Cart page did not load successfully.");
+    }
+
+    @Then("the page title should be {string}")
+    public void pageTitleShouldBe(String title) {
+        Assert.assertEquals(shoppingCartPage.getPageTitle(), title, "Page title mismatch.");
+    }
+
+    @Then("the page URL should be {string}")
+    public void pageURLShouldBe(String url) {
+        Assert.assertEquals(shoppingCartPage.getPageURL(), url, "Page URL mismatch.");
+    }
+
+    @Given("I am logged in with valid credentials")
+    public void loggedInWithValidCredentials() throws InterruptedException {
+        shoppingCartPage.navigateToLoginModal();
+        shoppingCartPage.enterUsername("testuser25177");
+        shoppingCartPage.enterPassword("1234");
+        shoppingCartPage.clickLoginButton();
+    }
+
+    @Given("I have added a product to the cart")
+    public void addProductToCart() {
+        shoppingCartPage.addProduct();
+    }
+
+    @When("I remove the product from the cart")
+    public void removeProductFromCart() {
+        shoppingCartPage.deleteProductFromCart();
+    }
+
+    @Then("the cart should be empty")
+    public void cartShouldBeEmpty() {
+        Assert.assertTrue(shoppingCartPage.isCartEmpty(), "The cart is not empty.");
+    }
+
+    @Then("I should not see the welcome message on the shopping cart page")
+    public void shouldNotSeeWelcomeMessageOnShoppingCartPage() {
+        Assert.assertFalse(shoppingCartPage.isUsernameDisplayed(), "Welcome message should not be visible.");
+    }
+}

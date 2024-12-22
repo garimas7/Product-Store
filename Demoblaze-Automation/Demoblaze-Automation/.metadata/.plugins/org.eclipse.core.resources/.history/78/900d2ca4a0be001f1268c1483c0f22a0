@@ -1,0 +1,42 @@
+package com.demoblaze.tests;
+
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+//import com.aventstack.extentreports.util.Assert;
+import com.demoblaze.pages.HomePage;
+import com.demoblaze.pages.LoginPage;
+
+import java.util.concurrent.TimeoutException;
+
+import org.testng.Assert;
+
+
+public class UserManagementTest extends BaseTest {
+    private HomePage homePage;
+    private LoginPage loginPage;
+
+    @BeforeClass
+    public void setupTest() {
+        homePage = new HomePage(driver);
+        loginPage = new LoginPage(driver);
+    }
+
+    @Test
+    public void testValidLogin() throws TimeoutException {
+        test = extent.createTest("Valid Login Test");
+        homePage.navigateToHome();
+        homePage.clickLogin();
+        loginPage.login("testuser", "testpass");
+        Assert.assertTrue(loginPage.isLoginSuccessful(), "Login was not successful");
+    }
+
+    @Test
+    public void testInvalidLogin() throws TimeoutException {
+        test = extent.createTest("Invalid Login Test");
+        homePage.navigateToHome();
+        homePage.clickLogin();
+        loginPage.login("invalid", "invalid");
+        Assert.assertTrue(loginPage.isErrorMessageDisplayed(), "Error message not displayed");
+    }
+}

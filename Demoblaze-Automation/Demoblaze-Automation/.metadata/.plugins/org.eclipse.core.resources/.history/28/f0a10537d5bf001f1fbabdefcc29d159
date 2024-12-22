@@ -1,0 +1,121 @@
+package stepsDefinitions;
+
+import java.time.Duration;
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+
+public class HomePageSteps {
+
+    WebDriver driver;
+
+    @Before
+    public void setup() {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver.manage().window().maximize();
+    }
+    @After
+    public void teardown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+    
+    @Given("I am on the homepage")
+    public void i_am_on_the_homepage() {
+        driver.get("https://www.demoblaze.com/");
+    }
+
+    @When("I click on all products")
+    public void i_click_on_all_products() throws InterruptedException {
+    	List<WebElement> products = driver.findElements(By.cssSelector("#tbodyid .card a"));
+        for (WebElement product : products) {
+        	String productName = product.getText();
+        	System.out.println("Product Name: " + productName);
+            product.click();
+            WebElement productDetails = driver.findElement(By.cssSelector(".name"));
+            Assert.assertTrue(productDetails.isDisplayed(), "Product details not displayed for one product");
+            driver.navigate().back();
+        }
+        driver.findElement(By.xpath("//button[@id='next2']")).click();
+        Thread.sleep(3000);
+//        List<WebElement> nextPageProducts = driver.findElements(By.cssSelector("#tbodyid .card a"));
+        for (WebElement product : products) {
+        	String productName = product.getText();
+        	System.out.println("Product Name: " + productName);
+            product.click();
+            WebElement productDetails = driver.findElement(By.cssSelector(".name"));
+            Assert.assertTrue(productDetails.isDisplayed(), "Product details not displayed for one product");
+            driver.navigate().back();
+        }
+    }
+//    @When("I click on all products")
+//    public void i_click_on_all_products() {
+//        try {
+//            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+//            boolean hasMorePages = true;
+//            int pageCount = 1;
+//
+//            while (hasMorePages) {
+//                System.out.println("Processing page " + pageCount);
+//
+//                // Get all products on the current page
+//                List<WebElement> products = driver.findElements(By.cssSelector("#tbodyid .card a"));
+//                System.out.println("Found " + products.size() + " products on page " + pageCount);
+//
+//                // Click each product on the current page
+//                for (int i = 0; i < products.size(); i++) {
+//                    List<WebElement> currentProducts = driver.findElements(By.cssSelector("#tbodyid .card a")); // Refresh list
+//                    WebElement product = currentProducts.get(i);
+//                    String productName = product.getText();
+//                    System.out.println("Clicking product: " + productName);
+//
+//                    // Click the product
+//                    product.click();
+//
+//                    // Wait for the product details page to load and validate
+//                    WebElement productDetails = wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("h2")));
+//                    Assert.assertTrue(productDetails.isDisplayed(), 
+//                        "Product details not displayed for product: " + productName);
+//
+//                    // Navigate back to the product list
+//                    driver.navigate().back();
+//
+//                    // Wait for the product list to stabilize
+//                    wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("#tbodyid .card a")));
+//                }
+//
+//                // Check if there's a next button
+//                List<WebElement> nextButtonList = driver.findElements(By.xpath("//button[@id='next2']")); // Update with actual selector
+//                if (!nextButtonList.isEmpty() && nextButtonList.get(0).isDisplayed()) {
+//                    System.out.println("Clicking the next button to load the next page...");
+//                    nextButtonList.get(0).click();
+//
+//                    // Wait for the next page to load
+//                    wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("#tbodyid .card a")));
+//                    pageCount++;
+//                } else {
+//                    System.out.println("No next button found. Ending pagination.");
+//                    hasMorePages = false;
+//                }
+//            }
+//        } catch (Exception e) {
+//            System.out.println("Test failed: " + e.getMessage());
+//            throw e;
+//        }
+//        System.out.println("All products processed successfully.");
+//    }
+}

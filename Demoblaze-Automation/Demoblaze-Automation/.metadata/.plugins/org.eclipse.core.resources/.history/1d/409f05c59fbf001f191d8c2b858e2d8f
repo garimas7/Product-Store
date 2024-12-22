@@ -1,0 +1,135 @@
+package pages;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+
+import java.util.List;
+
+public class ResponsiveDesign {
+    public WebDriver driver;
+
+    // Method to initialize WebDriver with mobile emulation
+    public void initializeDriver(String userAgent) {
+        ChromeOptions options = new ChromeOptions();
+        if (userAgent != null) {
+            options.addArguments("--user-agent=" + userAgent);
+        }
+        options.addArguments("--start-maximized");
+        driver = new ChromeDriver(options);
+        driver.manage().window().maximize();
+    }
+
+    // Method to open a URL
+    public void openURL(String url) {
+        driver.get(url);
+    }
+
+    // Method to close the driver
+    public void closeDriver() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+
+    // Method to verify if the menu is accessible on mobile
+    public boolean isMenuAccessible() {
+        try {
+            WebElement menuButton = driver.findElement(By.xpath("//button[@aria-label='Toggle navigation']")); // Mobile menu button
+            menuButton.click();
+            WebElement menu = driver.findElement(By.xpath("//div[@id='navbarExample']"));
+            return menu.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // Method to verify interactive elements are functional
+    public boolean areInteractiveElementsFunctional() {
+        try {
+            List<WebElement> buttons = driver.findElements(By.tagName("button"));
+            for (WebElement button : buttons) {
+                if (!button.isEnabled()) {
+                    return false;
+                }
+            }
+            List<WebElement> links = driver.findElements(By.tagName("a"));
+            for (WebElement link : links) {
+                if (!link.isDisplayed() || !link.isEnabled()) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // Method to verify no content overflows mobile screen
+    public boolean isContentWithinScreenWidth() {
+        try {
+            List<WebElement> elements = driver.findElements(By.xpath("//*"));
+            for (WebElement element : elements) {
+                int elementWidth = element.getSize().getWidth();
+                int screenWidth = driver.manage().window().getSize().getWidth();
+                if (elementWidth > screenWidth) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // Method to verify that clickable elements do not overlap
+ // Method to verify that clickable elements do not overlap
+    public boolean checkClickableElementsAccessibility() {
+        try {
+            // XPath to include various clickable elements like links, buttons, and input[type=button/submit]
+            List<WebElement> clickableElements = driver.findElements(By.xpath("//a"));
+            
+            if (clickableElements.isEmpty()) {
+                System.out.println("No clickable elements found.");
+                return false;  // No clickable elements found
+            }
+            
+            for (WebElement element : clickableElements) {
+                // Get the element's tag name or any other identifying attribute to log it
+                String elementName = element.getTagName();
+                String elementText = element.getText().isEmpty() ? "No text" : element.getText(); // If element has no text, print "No text"
+                
+                // Check if the element is displayed and enabled
+                boolean isDisplayed = element.isDisplayed();
+                boolean isEnabled = element.isEnabled();
+                
+                if (isDisplayed && isEnabled) {
+                    System.out.println("Clickable element: " + elementName + " - Text: " + elementText);
+                } else {
+                    System.out.println("Non-clickable element: " + elementName + " - Text: " + elementText + 
+                        " - Displayed: " + isDisplayed + " - Enabled: " + isEnabled);
+                    return false;  // If any element is non-clickable, return false
+                }
+            }
+            return true;  // All elements are clickable
+        } catch (Exception e) {
+            System.out.println("An error occurred: " + e.getMessage());
+            return false;  // In case of exception, return false
+        }
+    }
+
+
+    // Method to test JavaScript functionality
+    public boolean isJavaScriptWorking() {
+        try {
+            // Assuming a dynamic element appears after an event
+            WebElement categoryButton = driver.findElement(By.xpath("//a[text()='Contact']"));
+            categoryButton.click();
+            WebElement modal = driver.findElement(By.id("exampleModal"));
+            return modal.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+}

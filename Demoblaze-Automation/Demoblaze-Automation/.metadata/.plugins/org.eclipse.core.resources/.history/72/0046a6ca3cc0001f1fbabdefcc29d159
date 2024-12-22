@@ -1,0 +1,66 @@
+Feature: Shopping Cart
+
+  Background: 
+    Given I am on the homepages
+
+  @cartPage
+  Scenario: Cart page loads successfully
+    When I click on the cart button
+    Then I should see the cart page loaded
+
+  @cartPage
+  Scenario: Validate the title and URL of the cart page
+    When I click on the cart button
+    Then the page title should be "STORE"
+    And the page URL should be "https://www.demoblaze.com/cart.html"
+
+  @login
+  Scenario: Validate username displayed in the navigation bar after login
+    Given I login with username "testuser25177" and password "1234"
+    Then I should see the username displayed in the navigation bar
+
+  @cartPage
+  Scenario: Remove product from the cart
+    Given I am logged in with username "testuser25177" and password "1234"
+    When I add a product to the cart
+    And I go to the cart page
+    And I delete the product from the cart
+    Then the cart should be empty
+
+  @login
+  Scenario: Login with missing required fields
+    Given I navigate to the login modal
+    When I attempt to login with empty username and password
+    Then I should see an alert with message "Please fill out Username and Password."
+    And I should not see the welcome message
+
+  @login
+  Scenario: Login with empty username
+    Given I navigate to the login modal
+    When I attempt to login with empty username and password "1234"
+    Then I should see an alert with message "Please fill out Username and Password."
+    And I should not see the welcome messages
+
+  @cartPage
+  Scenario: Add and remove a single item from the cart
+    Given I am logged in with username "testuser25177" and password "1234"
+    When I add a product to the cart
+    And I go to the cart page
+    And I delete the product from the cart
+    Then I should see the cart is empty
+
+  @order
+  Scenario: Place order after adding a single item
+    Given I am logged in with username "testuser25177" and password "1234"
+    When I add a product to the cart
+    And I go to the cart page
+    And I place an order with my details
+    Then I should see the confirmation message containing my card number
+
+  @cartPage
+  Scenario: Add and remove a single item twice
+    Given I am logged in with username "testuser25177" and password "1234"
+    When I add a product to the cart
+    And I remove the product from the cart
+    And I add the product to the cart again
+    Then the product should be in the cart

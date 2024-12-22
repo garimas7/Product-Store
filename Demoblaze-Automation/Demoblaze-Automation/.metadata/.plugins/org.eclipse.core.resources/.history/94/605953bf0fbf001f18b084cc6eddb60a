@@ -1,0 +1,72 @@
+package tests;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import pages.HomePage;
+import pages.LoginPage;
+import pages.ProductDetails;
+
+public class ProductDetailsTest extends BaseTest {
+    WebDriver driver;
+    WebDriverWait wait;
+    ProductDetails productDetails;
+    HomePage homePage;
+    LoginPage loginPage;
+
+    @BeforeMethod
+    public void setUp() throws InterruptedException {
+        driver = initializeDriver();  // Initialize WebDriverWait with a timeout of 10 seconds
+        homePage = new HomePage(driver);
+        productDetails = new ProductDetails(driver);
+        loginPage = new LoginPage(driver);
+
+        driver.get("https://www.demoblaze.com/");
+
+        // Login process
+        loginPage.navigateToLoginModal();
+        loginPage.enterUsername("testuser25177");
+        loginPage.enterPassword("1234");
+        loginPage.clickLoginButton();
+        Thread.sleep(3000);
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+
+    @Test(priority = 1)
+    public void testVerifyProductDetails() throws InterruptedException {
+        // Verify product details on the Product Details page
+    	productDetails.clickOnProduct();
+    	Thread.sleep(3000);
+        Assert.assertTrue(!productDetails.getProductName().isEmpty(), "Product name is missing.");
+        System.out.println(productDetails.getProductName());
+        Assert.assertTrue(productDetails.getProductPrice().contains("$"), "Product price is not displayed or does not contain '$'.");
+        System.out.println(productDetails.getProductPrice());
+        Assert.assertTrue(productDetails.getProductDescription().contains("Samsung Galaxy S6"), "Product description is not displayed or does not contain 'Samsung Galaxy S6'.");
+        System.out.println(productDetails.getProductDescription());
+        Assert.assertNotNull(productDetails.getProductImage().getAttribute("src"), "Product image is missing.");
+    }
+    @Test(priority = 2)
+    public void testAddToCartButtonVisibleAndFunctional() {
+        Assert.assertTrue(productDetails.getAddToCartButton().isDisplayed(), "Add to Cart button is not visible.");
+        System.out.println("Add to Cart Button is visible or not: " + productDetails.getAddToCartButton().isDisplayed());
+        // Verify that the "Add to Cart" button is functional (basic check for alert presence)
+        productDetails.clickAddToCartButton();
+        Assert.assertTrue(isAlertPresent(), "Add to Cart button is not functional or no success alert is displayed.");
+        driver.switchTo().alert().accept(); // Close the alert
+    }
+}

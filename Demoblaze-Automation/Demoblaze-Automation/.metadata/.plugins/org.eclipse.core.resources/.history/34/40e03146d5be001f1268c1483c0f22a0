@@ -1,0 +1,16 @@
+package pages;
+
+import org.openqa.selenium.WebDriver;
+
+public class loginPage {
+	WebDriver driver;
+	
+	// Constructor
+	loginPage(WebDriver driver){
+		this.driver = driver;
+	}
+	
+	// Locators
+	
+	
+}

@@ -1,0 +1,61 @@
+Feature: Sign Up Functionality
+
+  Scenario Outline: Successful sign up
+    Given I navigate to the Sign Up modal
+    When I enter "<username>" and "<password>"
+    And I click the Sign Up button
+    Then I should see a confirmation message containing "Sign up successful."
+
+    Examples:
+      | username     | password |
+      | testuser117  | 1234     |
+      | testuser118  | 1234     |
+
+  Scenario Outline: Sign up with existing username
+    Given I navigate to the Sign Up modal
+    When I enter "<username>" and "<password>"
+    And I click the Sign Up button
+    Then I should see a confirmation message containing "This user already exist."
+
+    Examples:
+      | username     | password |
+      | testuser1    | 1234     |
+      | testuser181  | 1234     |
+
+  Scenario Outline: Sign up with short password
+    Given I navigate to the Sign Up modal
+    When I enter "<username>" and "<password>"
+    And I click the Sign Up button
+    Then I should see a confirmation message containing "Sign up successful."
+
+    Examples:
+      | username     | password |
+      | testuser119  | 1        |
+      | testuser120  | 12       |
+
+  Scenario: Sign up with empty credentials
+    Given I navigate to the Sign Up modal
+    When I click the Sign Up button without entering any credentials
+    Then I should see a confirmation message containing "Please fill out Username and Password."
+
+  Scenario Outline: Sign up with minimum length credentials
+    Given I navigate to the Sign Up modal
+    When I enter "<username>" and "<password>"
+    And I click the Sign Up button
+    Then I should see a confirmation message containing "Sign up successful."
+
+    Examples:
+      | username | password |
+      | @b@      | @b@      |
+      | @c@      | @c@      |
+
+  Scenario Outline: Sign up with maximum length credentials
+    Given I navigate to the Sign Up modal
+    When I enter "<username>" and "<password>"
+    And I click the Sign Up button
+    Then I should see a confirmation message containing "Sign up successful."
+
+    Examples:
+      | username                                | password                                |
+      | qwertyuiopasdfghjklzxcvbnm@181         | qwertyuiopasdfghjklzxcvbnm@181         |
+      | qwertyuiopasdfghjklzxcvbnm@181qwertyuiopasdfghjklzxcvbnm@181 | qwertyuiopasdfghjklzxcvbnm@181qwertyuiopasdfghjklzxcvbnm@181 |

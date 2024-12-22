@@ -1,0 +1,81 @@
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+import java.util.List;
+
+public class ResponsiveDesign {
+
+    private WebDriver driver;
+    private WebDriverWait wait;
+    private Actions actions;
+
+    public ResponsiveDesign(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.actions = new Actions(driver);
+    }
+
+    public void openWebsite(String url) {
+        driver.get(url);
+    }
+
+    public void verifyMobileLayout() {
+        // Implement logic to verify mobile layout adjustments
+        // This might involve checking CSS media queries, element sizes, etc.
+        // Example: Check if the website is using a responsive grid system
+        WebElement gridElement = driver.findElement(By.className("grid-container")); // Replace with actual class name
+        assert gridElement.isDisplayed();
+    }
+
+    public void verifyNavigationMenu() {
+        // Implement logic to interact with the navigation menu on mobile
+        // Example: Open the mobile menu, click on menu items, verify navigation
+        WebElement menuToggle = driver.findElement(By.id("mobile-menu-toggle")); // Replace with actual ID
+        menuToggle.click();
+        // Add assertions to verify menu items are visible and clickable
+    }
+
+    public void verifyInteractiveElements() {
+        // Implement logic to interact with buttons, forms, and links
+        // Example: Click on a button, fill out a form, click on a link
+        WebElement button = driver.findElement(By.cssSelector("button[type='submit']")); // Replace with actual selector
+        button.click();
+        // Add assertions to verify expected behavior after interaction
+    }
+
+    public void verifyNoContentOverflow() {
+        // Implement logic to check for horizontal scrolling on mobile
+        // Example: Get the body width and compare it to the viewport width
+        int bodyWidth = ((Long) ((JavascriptExecutor) driver).executeScript("return document.body.scrollWidth")).intValue();
+        int viewportWidth = driver.manage().window().getSize().getWidth();
+        assert bodyWidth <= viewportWidth : "Content overflows viewport width";
+    }
+
+    public void verifyClickableElementsSpacing() {
+        // Implement logic to check spacing between clickable elements
+        // Example: Get the bounding boxes of elements and check for overlaps
+        List<WebElement> clickableElements = driver.findElements(By.cssSelector("button, a, input[type='submit']"));
+        // Add logic to calculate and compare bounding boxes for overlap detection
+    }
+
+    public void verifyJavascriptFunctionality() {
+        // Implement logic to test JavaScript functions like form validation
+        // Example: Trigger form submission and check for validation messages
+        WebElement formInput = driver.findElement(By.id("form-input")); // Replace with actual ID
+        formInput.sendKeys("Invalid Input");
+        WebElement submitButton = driver.findElement(By.cssSelector("button[type='submit']"));
+        submitButton.click();
+        WebElement validationMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("validation-message"))); // Replace with actual ID
+        assert validationMessage.isDisplayed();
+    }
+
+    // Add methods for remaining test cases (7-10) similarly...
+}

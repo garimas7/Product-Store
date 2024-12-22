@@ -1,0 +1,136 @@
+package tests;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import pages.HomePage;
+import java.time.Duration;
+
+public class HomePageTest {
+    WebDriver driver;
+    HomePage homePage;
+
+    @BeforeMethod
+    public void setUp() {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+        // DemoBlaze URL
+        driver.get("https://www.demoblaze.com/");
+
+        // HomePage object
+        homePage = new HomePage(driver);
+    }
+
+    @Test(priority = 1)
+    public void testHomeLink() throws InterruptedException {
+        homePage.clickHome();
+        Thread.sleep(3000);
+        Assert.assertEquals(driver.getCurrentUrl(), "https://www.demoblaze.com/index.html", "Home link failed");
+    }
+
+    @Test(priority = 2)
+    public void testContactLink() {
+        homePage.clickContact();
+        Assert.assertTrue(homePage.isContactFormDisplayed(), "Contact form did not appear");
+    }
+
+    @Test(priority = 3)
+    public void testAboutLink() {
+        homePage.clickAbout();
+        Assert.assertTrue(homePage.isVideoPopUpDisplayed(), "Video pop-up did not appear");
+    }
+
+    @Test(priority = 4)
+    public void testCartLink() {
+        homePage.clickCart();
+        Assert.assertTrue(driver.getCurrentUrl().contains("cart"), "Cart page did not open");
+    }
+
+    @Test(priority = 5)
+    public void testLoginLink() {
+        homePage.clickLogin();
+
+        // Wait and check if the login form pop-up is displayed
+        Assert.assertTrue(homePage.isLoginFormDisplayed(), "Login form did not appear");
+    }
+
+    @Test(priority = 6)
+    public void testSignUpLink() {
+        homePage.clickSignUp();
+        Assert.assertTrue(homePage.isSignUpFormDisplayed(), "Sign-up form did not appear");
+    }
+    
+    @Test(priority = 7)
+    public void testPhonesCategory() {
+    	homePage.clickPhonesCategory();
+    	Assert.assertTrue(driver.getCurrentUrl().contains("#"), "Phone Category page did not open");
+    }
+    
+    @Test(priority = 8)
+    public void testLaptopCategory() {
+    	homePage.clickLaptopCategory();
+    	Assert.assertTrue(driver.getCurrentUrl().contains("#"), "Laptop Category page did not open");
+    }
+    
+    @Test(priority = 9)
+    public void testDesktopCategory() {
+    	homePage.clickDesktopCategory();
+    	Assert.assertTrue(driver.getCurrentUrl().contains("#"), "Desktop Category page did not open");
+    }
+  
+
+    @Test(priority = 10)
+    public void testClickAllProducts() throws Exception {
+        try {
+            boolean hasMorePages = true;
+            int pageCount = 1;
+
+            while (hasMorePages) {
+                System.out.println("Processing page " + pageCount);
+                
+                // Get the number of products on current page
+                int productCount = homePage.getProductCount();
+                System.out.println("Found " + productCount + " products on page " + pageCount);
+                
+                if (productCount == 0) {
+                    System.out.println("No products found on page " + pageCount);
+                    break;
+                }
+                
+                // Click each product on the current page
+                for (int i = 0; i < productCount; i++) {
+                    // Verify product is displayed
+                    Assert.assertTrue(homePage.isProductDisplayed(i), 
+                        "Product at index " + i + " is not displayed");
+                    
+                    // Get and print product name before clicking
+                    String productName = homePage.getProductName(i);
+                    System.out.println("Clicking product: " + productName);
+                    
+                    // Click the product
+                    homePage.clickOnProduct(i);
+                }
+
+                // Check if there's a next page
+                if (homePage.isNextButtonVisible()) {
+                    homePage.clickNextButton();
+                    pageCount++;
+                } else {
+                    hasMorePages = false;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Test failed: " + e.getMessage());
+            throw e;
+        }
+    }
+    @AfterMethod
+    public void tearDown() {
+        driver.quit();
+    }
+}

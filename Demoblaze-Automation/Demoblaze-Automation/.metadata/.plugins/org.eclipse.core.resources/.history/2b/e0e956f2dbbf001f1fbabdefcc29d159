@@ -1,0 +1,232 @@
+package stepsDefinitions;
+
+import io.cucumber.java.en.*;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.datatable.DataTable;
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoAlertPresentException;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import pages.CheckoutPage;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+
+public class CheckoutSteps {
+    private WebDriver driver;
+    private CheckoutPage checkoutPage;
+    private WebDriverWait wait;
+
+    // Shopping Cart Locators
+    private By loginLink = By.id("login2");
+    private By usernameField = By.id("loginusername");
+    private By passwordField = By.id("loginpassword");
+    private By loginButton = By.xpath("//button[contains(text(),'Log in')]");
+    private By firstProduct = By.xpath("//a[contains(text(),'Samsung galaxy s6')]");
+    private By addToCartButton = By.xpath("//a[contains(text(),'Add to cart')]");
+
+    @Before
+    public void setup() {
+        try {
+            driver = new ChromeDriver();
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+            driver.manage().window().maximize();
+            wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            checkoutPage = new CheckoutPage(driver);
+        } catch (Exception e) {
+            System.out.println("Error in setup: " + e.getMessage());
+            if (driver != null) {
+                driver.quit();
+            }
+        }
+    }
+
+    @After
+    public void tearDown() {
+        try {
+            if (driver != null) {
+                driver.quit();
+            }
+        } catch (Exception e) {
+            System.out.println("Error in teardown: " + e.getMessage());
+        }
+    }
+
+    // Shopping Cart Methods
+    private void login(String username, String password) {
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(loginLink)).click();
+            wait.until(ExpectedConditions.visibilityOfElementLocated(usernameField)).sendKeys(username);
+            driver.findElement(passwordField).sendKeys(password);
+            driver.findElement(loginButton).click();
+            Thread.sleep(2000); // Wait for login to complete
+        } catch (Exception e) {
+            throw new RuntimeException("Login failed: " + e.getMessage());
+        }
+    }
+
+    private void addProduct() {
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(firstProduct)).click();
+            Thread.sleep(1000);
+            wait.until(ExpectedConditions.elementToBeClickable(addToCartButton)).click();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to add product: " + e.getMessage());
+        }
+    }
+
+    @Given("I am on the demoblaze website")
+    public void i_am_on_the_demoblaze_website() {
+        try {
+            driver.get("https://www.demoblaze.com/");
+            wait.until(ExpectedConditions.urlToBe("https://www.demoblaze.com/"));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load website: " + e.getMessage());
+        }
+    }
+
+    @Given("I am logged in as {string} with password {string}")
+    public void i_am_logged_in_as_with_password(String username, String password) {
+        try {
+            login(username, password);
+        } catch (Exception e) {
+            throw new RuntimeException("Login failed: " + e.getMessage());
+        }
+    }
+
+    @When("I add a product to cart")
+    public void i_add_a_product_to_cart() {
+        try {
+            addProduct();
+            handleAlert();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to add product to cart: " + e.getMessage());
+        }
+    }
+
+    @When("I navigate to cart")
+    public void i_navigate_to_cart() {
+        try {
+            Thread.sleep(1000);
+            checkoutPage.clickCartButton();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to navigate to cart: " + e.getMessage());
+        }
+    }
+
+    @When("I click on place order")
+    public void i_click_on_place_order() {
+        try {
+            Thread.sleep(1000);
+            checkoutPage.clickPlaceOrder();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to click place order: " + e.getMessage());
+        }
+    }
+
+    @When("I fill checkout details with following information")
+    public void i_fill_checkout_details_with_following_information(DataTable dataTable) {
+        try {
+            List<Map<String, String>> data = dataTable.asMaps(String.class, String.class);
+            Map<String, String> checkoutData = data.get(0);
+            
+            checkoutPage.fillCheckoutDetails(
+                checkoutData.get("name"),
+                checkoutData.get("country"),
+                checkoutData.get("city"),
+                checkoutData.get("card"),
+                checkoutData.get("month"),
+                checkoutData.get("year")
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fill checkout details: " + e.getMessage());
+        }
+    }
+
+    @When("I click on purchase button")
+    public void i_click_on_purchase_button() {
+        try {
+            Thread.sleep(1000);
+            checkoutPage.clickPurchaseButton();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to click purchase button: " + e.getMessage());
+        }
+    }
+
+    @Then("I should see successful purchase message")
+    public void i_should_see_successful_purchase_message() {
+        try {
+            Assert.assertTrue(checkoutPage.isPurchaseSuccessful(), "Purchase was not successful");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to verify purchase success: " + e.getMessage());
+        }
+    }
+
+    @Then("I should see alert message {string}")
+    public void i_should_see_alert_message(String expectedMessage) {
+        try {
+            String actualMessage = handleAlert();
+            Assert.assertEquals(actualMessage, expectedMessage, "Alert message doesn't match");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to verify alert message: " + e.getMessage());
+        }
+    }
+
+    @When("I add {string} products to cart")
+    public void i_add_products_to_cart(String count) {
+        try {
+            int itemCount = Integer.parseInt(count);
+            for (int i = 0; i < itemCount; i++) {
+                addProduct();
+                handleAlert();
+                driver.navigate().to("https://www.demoblaze.com/");
+                Thread.sleep(1000);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to add multiple products: " + e.getMessage());
+        }
+    }
+
+    @Then("I should see all items in the cart")
+    public void i_should_see_all_items_in_the_cart() {
+        try {
+            int itemCount = checkoutPage.getCartItemCount();
+            Assert.assertTrue(itemCount > 0, "Cart is empty");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to verify cart items: " + e.getMessage());
+        }
+    }
+
+    @Then("cart should contain {string} item")
+    public void cart_should_contain_item(String expectedCount) {
+        try {
+            int actualCount = checkoutPage.getCartItemCount();
+            Assert.assertEquals(actualCount, Integer.parseInt(expectedCount), 
+                "Cart item count doesn't match");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to verify cart item count: " + e.getMessage());
+        }
+    }
+
+    private String handleAlert() {
+        try {
+            WebDriverWait alertWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            Alert alert = alertWait.until(ExpectedConditions.alertIsPresent());
+            String alertMessage = alert.getText();
+            alert.accept();
+            return alertMessage;
+        } catch (TimeoutException | NoAlertPresentException e) {
+            System.out.println("No alert present or timeout waiting for alert");
+            return "";
+        }
+    }
+}

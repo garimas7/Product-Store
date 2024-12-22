@@ -1,0 +1,59 @@
+package pages;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class AboutPage {
+    WebDriver driver;
+
+    // Constructor to initialize the driver and elements
+    public AboutPage(WebDriver driver) {
+        this.driver = driver;
+        PageFactory.initElements(driver, this);
+    }
+
+    // Locators for About us elements
+    @FindBy(linkText = "About us")  // Link to open the "About us" modal
+    WebElement aboutUsLink;
+
+    @FindBy(id = "videoModal")  // Modal popup for About us
+    WebElement aboutUsModal;
+
+    @FindBy(xpath = "//button[@class='close']")  // Close button in the modal
+    WebElement closeModalButton;
+
+    @FindBy(xpath = "//button[text()='Play Video']")  // Play button for the video
+    WebElement playVideoButton;
+
+    @FindBy(xpath = "//iframe[contains(@src, 'https://www.youtube.com/embed')]")  // YouTube video iframe
+    WebElement videoIframe;
+
+    // Actions for the page
+
+    // Click the "About us" link
+    public void clickAboutUs() {
+        aboutUsLink.click();
+    }
+
+    // Check if the modal is displayed
+    public boolean isAboutUsModalDisplayed() {
+        return aboutUsModal.isDisplayed();
+    }
+
+    // Close the modal
+    public void closeModal() {
+        closeModalButton.click();
+    }
+
+    // Play the video in the modal
+    public void playVideo() {
+        playVideoButton.click();
+    }
+
+    // Check if the video iframe is present (indicates video is playing)
+    public boolean isVideoPlaying() {
+        return videoIframe.isDisplayed();
+    }
+}

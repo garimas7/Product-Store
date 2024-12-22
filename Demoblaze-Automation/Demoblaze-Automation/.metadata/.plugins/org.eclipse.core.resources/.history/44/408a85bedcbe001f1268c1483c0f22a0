@@ -1,0 +1,111 @@
+package tests;
+
+import java.time.Duration;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+import pages.ContactPage;
+
+public class ContactPageTest {
+
+    private WebDriver driver;
+    private ContactPage contactPage;
+
+    @BeforeMethod
+    public void setUp() {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver.get("https://www.demoblaze.com/");
+        contactPage = new ContactPage(driver);
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+
+    @Test(dataProvider = "validContactData", priority = 1)
+    public void testSendMessageSuccessfully(String email, String name, String message) throws InterruptedException {
+        contactPage.navigateToContactModal();
+        contactPage.enterEmail(email);
+        contactPage.enterContactName(name);
+        contactPage.enterMessage(message);
+        Thread.sleep(3000);
+        contactPage.clickSendMessageButton();
+        Assert.assertTrue(contactPage.isConfirmationMessagePresent(), "Confirmation message should be present after sending message.");
+        String confirmationMessage = contactPage.getConfirmationMessage();
+        Assert.assertTrue(confirmationMessage.contains("Thanks for the message!!"), "Incorrect success message.");
+    }
+
+    @Test(priority = 2)
+    public void testSendMessageWithEmptyFields() {
+        contactPage.navigateToContactModal();
+        contactPage.clickSendMessageButton();
+        Assert.assertTrue(contactPage.isConfirmationMessagePresent(), "Confirmation message should be present for empty fields.");
+        String confirmationMessage = contactPage.getConfirmationMessage();
+        // The exact error message might vary, adjust based on the application
+        Assert.assertTrue(confirmationMessage.contains("Please fill out the form"), "Incorrect error message for empty fields.");
+    }
+
+    @Test(dataProvider = "invalidEmailData", priority = 3)
+    public void testSendMessageWithInvalidEmail(String email, String name, String message) {
+        contactPage.navigateToContactModal();
+        contactPage.enterEmail(email);
+        contactPage.enterContactName(name);
+        contactPage.enterMessage(message);
+        contactPage.clickSendMessageButton();
+        Assert.assertTrue(contactPage.isConfirmationMessagePresent(), "Confirmation message should be present for invalid email.");
+        String confirmationMessage = contactPage.getConfirmationMessage();
+        // The exact error message might vary, adjust based on the application
+        Assert.assertTrue(confirmationMessage.contains("Invalid email address"), "Incorrect error message for invalid email.");
+    }
+
+    @Test(priority = 4)
+    public void testSendMessageWithEmptyName() {
+        contactPage.navigateToContactModal();
+        contactPage.enterEmail("test@example.com");
+        contactPage.enterMessage("This is a test message.");
+        contactPage.clickSendMessageButton();
+        Assert.assertTrue(contactPage.isConfirmationMessagePresent(), "Confirmation message should be present for empty name.");
+        String confirmationMessage = contactPage.getConfirmationMessage();
+        // The exact error message might vary, adjust based on the application
+        Assert.assertTrue(confirmationMessage.contains("Please fill out the form"), "Incorrect error message for empty name.");
+    }
+
+    @Test(priority = 5)
+    public void testSendMessageWithEmptyMessage() {
+        contactPage.navigateToContactModal();
+        contactPage.enterEmail("test@example.com");
+        contactPage.enterContactName("Test User");
+        contactPage.clickSendMessageButton();
+        Assert.assertTrue(contactPage.isConfirmationMessagePresent(), "Confirmation message should be present for empty message.");
+        String confirmationMessage = contactPage.getConfirmationMessage();
+        // The exact error message might vary, adjust based on the application
+        Assert.assertTrue(confirmationMessage.contains("Please fill out the form"), "Incorrect error message for empty message.");
+    }
+
+    @DataProvider(name = "validContactData")
+    public Object[][] validContactData() {
+        return new Object[][]{
+                {"test@example.com", "Test User", "This is a test message."},
+                {"another@example.com", "Another User", "Another test message."}
+        };
+    }
+
+    @DataProvider(name = "invalidEmailData")
+    public Object[][] invalidEmailData() {
+        return new Object[][]{
+                {"invalid-email", "Test User", "This is a test message."},
+                {"test@.com", "Test User", "This is a test message."},
+                {"test@example", "Test User", "This is a test message."}
+        };
+    }
+}
